@@ -7,7 +7,9 @@
   <style>
     body {
       padding: 2rem;
-      background-color: #f8f9fa;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+      font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
     }
     .container {
       display: flex;
@@ -21,10 +23,11 @@
       gap: 2rem;
     }
     .entry-form, .tasks-section, .weekly-data, .chart-section {
-      background-color: white;
-      padding: 1rem;
-      border-radius: 10px;
-      box-shadow: 0 0 8px rgba(0,0,0,0.05);
+      background: rgba(255,255,255,0.95);
+      padding: 1.5rem 2rem;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px 0 rgba(44, 62, 80, 0.12);
+      border: 1px solid #e0c3fc;
     }
     .tasks-section ul {
       list-style: none;
@@ -40,16 +43,54 @@
       border-radius: 50%;
       margin-right: 5px;
     }
-    .mood-positive { background-color: green; }
-    .mood-neutral { background-color: gray; }
-    .mood-negative { background-color: red; }
+  .mood-positive { background-color: #43ea7f; }
+  .mood-neutral { background-color: #bdb2ff; }
+  .mood-negative { background-color: #ff6b6b; }
 
     .tasks-count {
-    background-color: #7cb2ecd3; /* light blue */
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.25rem;
-    font-weight: 600;
-  }
+      background-color: #8ec5fc;
+      padding: 0.25rem 0.75rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(44, 62, 80, 0.08);
+    }
+    .btn-primary {
+      background-color: #6a4cff;
+      border: none;
+      color: #fff;
+      font-weight: 500;
+      box-shadow: 0 2px 8px rgba(44, 62, 80, 0.08);
+    }
+    .btn-primary:hover {
+      background-color: #8ec5fc;
+      color: #fff;
+    }
+    .btn-success {
+      background-color: #43ea7f;
+      border: none;
+      color: #fff;
+      font-weight: 500;
+    }
+    .btn-success:hover {
+      background-color: #2ecc71;
+      color: #fff;
+    }
+    .form-control, .form-select {
+      border-radius: 8px;
+      border: 1px solid #bdb2ff;
+      box-shadow: 0 1px 4px rgba(44, 62, 80, 0.06);
+    }
+    .list-group-item {
+      background: #f3f0ff;
+      border: 1px solid #e0c3fc;
+      border-radius: 8px !important;
+      margin-bottom: 6px;
+    }
+    h4, h5 {
+      color: #6a4cff;
+      font-weight: 600;
+    }
 
   </style>
 </head>
