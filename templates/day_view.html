@@ -5,18 +5,66 @@
   <title>Day Journal View</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <style>
-    body { padding: 2rem; background-color: #f8f9fa; }
+    body {
+      padding: 2rem;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+      font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+    }
     .content-box {
-      background: white;
-      padding: 1.5rem;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      background: rgba(255,255,255,0.95);
+      padding: 2rem 2.5rem;
+      border-radius: 18px;
+      box-shadow: 0 8px 32px 0 rgba(44, 62, 80, 0.12);
       max-width: 900px;
       margin: 0 auto;
+      border: 1px solid #e0c3fc;
     }
-    pre { /* keep journal text readable inside table */
-      white-space: pre-wrap; 
+    h4 {
+      color: #6a4cff;
+      font-weight: 600;
+    }
+    .table-dark {
+      background-color: #6a4cff !important;
+      color: #fff;
+    }
+    .table-bordered > :not(caption) > * > * {
+      border-color: #bdb2ff;
+    }
+    .btn-secondary {
+      background-color: #8ec5fc;
+      border: none;
+      color: #fff;
+      font-weight: 500;
+      box-shadow: 0 2px 8px rgba(44, 62, 80, 0.08);
+    }
+    .btn-secondary:hover {
+      background-color: #6a4cff;
+      color: #fff;
+    }
+    pre {
+      white-space: pre-wrap;
       margin: 0;
+      font-family: 'Fira Mono', 'Consolas', monospace;
+      color: #444;
+      background: #f3f0ff;
+      border-radius: 6px;
+      padding: 0.5em;
+    }
+    .alert-info {
+      background: linear-gradient(90deg, #f3f0ff 0%, #e0c3fc 100%);
+      color: #6a4cff;
+      border: 1px solid #bdb2ff;
+    }
+    ul.mb-0.ps-3 li {
+      background: #e0c3fc22;
+      border-radius: 4px;
+      margin-bottom: 4px;
+      padding: 2px 8px;
+    }
+    .text-success {
+      color: #43ea7f !important;
+      font-weight: bold;
     }
   </style>
 </head>
