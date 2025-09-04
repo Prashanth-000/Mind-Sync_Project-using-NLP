@@ -7,32 +7,33 @@ from datetime import datetime
 import os
 from collections import defaultdict
 from flask import redirect, url_for
+from database.db import init_db, add_entry, add_task, get_all_entries, get_all_tasks, update_task_status
 
 app = Flask(__name__)
 
-def init_db():
-    if not os.path.exists('database'):
-        os.makedirs('database')
+# def init_db():
+#     if not os.path.exists('database'):
+#         os.makedirs('database')
 
-    conn = sqlite3.connect('database/journal.db')
-    c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS entries (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    date TEXT,
-                    text TEXT,
-                    mood TEXT,
-                    productivity REAL
-                )''')
-    c.execute('''CREATE TABLE IF NOT EXISTS tasks (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    entry_id INTEGER,
-                    task_text TEXT,
-                    status TEXT DEFAULT 'pending',
-                    completed INTEGER DEFAULT 0,
-                    FOREIGN KEY(entry_id) REFERENCES entries(id)
-                )''')
-    conn.commit()
-    conn.close()
+#     conn = sqlite3.connect('database/journal.db')
+#     c = conn.cursor()
+#     c.execute('''CREATE TABLE IF NOT EXISTS entries (
+#                     id INTEGER PRIMARY KEY AUTOINCREMENT,
+#                     date TEXT,
+#                     text TEXT,
+#                     mood TEXT,
+#                     productivity REAL
+#                 )''')
+#     c.execute('''CREATE TABLE IF NOT EXISTS tasks (
+#                     id INTEGER PRIMARY KEY AUTOINCREMENT,
+#                     entry_id INTEGER,
+#                     task_text TEXT,
+#                     status TEXT DEFAULT 'pending',
+#                     completed INTEGER DEFAULT 0,
+#                     FOREIGN KEY(entry_id) REFERENCES entries(id)
+#                 )''')
+#     conn.commit()
+#     conn.close()
 @app.route("/", methods=["GET"])
 def index():
     conn = sqlite3.connect('database/journal.db')
