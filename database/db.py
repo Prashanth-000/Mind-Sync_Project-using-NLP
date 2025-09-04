@@ -1,78 +1,213 @@
-import sqlite3
 import os
+from pymongo import MongoClient
+from pymongo.server_api import ServerApi
+from bson.objectid import ObjectId
+from dotenv import load_dotenv
+from urllib.parse import quote_plus
 
-DATABASE_PATH = 'database/journal.db'
+# Load environment variables from your .env file
+load_dotenv()
 
-def get_db_connection():
-    """Establishes a connection to the database."""
-    conn = sqlite3.connect(DATABASE_PATH)
-    conn.row_factory = sqlite3.Row  # This allows accessing columns by name
-    return conn
+# MONGO_USER = os.getenv("MONGO_USER")
+# MONGO_PASSWORD = os.getenv("MONGO_PASSWORD")
+MONGO_CLUSTER_URL = os.getenv("MONGO_CLUSTER_URL")
+
+# This global variable will hold the database connection object
+db = None
 
 def init_db():
-    """Initializes the database and creates tables if they don't exist."""
-    if not os.path.exists('database'):
-        os.makedirs('database')
+    """Initializes the connection to the MongoDB Atlas database."""
+    global db
+    if db is None:
+        try:
+            if not all([MONGO_CLUSTER_URL]):
+                raise ValueError("Missing MongoDB credentials in your .env file.")
 
-    conn = get_db_connection()
-    c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS entries (
-                     id INTEGER PRIMARY KEY AUTOINCREMENT,
-                     date TEXT,
-                     text TEXT,
-                     mood TEXT,
-                     productivity REAL
-                 )''')
-    c.execute('''CREATE TABLE IF NOT EXISTS tasks (
-                     id INTEGER PRIMARY KEY AUTOINCREMENT,
-                     entry_id INTEGER,
-                     task_text TEXT,
-                     status TEXT DEFAULT 'pending',
-                     completed INTEGER DEFAULT 0,
-                     FOREIGN KEY(entry_id) REFERENCES entries(id)
-                 )''')
-    conn.commit()
-    conn.close()
-    print("Database initialized.")
+            # Safely encode the username and password
+            # safe_user = quote_plus(MONGO_USER)
+            # safe_password = quote_plus(MONGO_PASSWORD)
+            
+            # Build the full, safe MongoDB URI
+            MONGO_URI = MONGO_CLUSTER_URL
+
+            client = MongoClient(MONGO_URI, server_api=ServerApi('1'))
+            client.admin.command('ping')
+            print("Pinged your deployment. You successfully connected to MongoDB!")
+            
+            db = client.journal_db
+        except Exception as e:
+            print(f"Error connecting to MongoDB: {e}")
+            db = None
+
+# --- BASIC CRUD FUNCTIONS (UNCHANGED) ---
 
 def add_entry(date, text, mood, productivity):
-    """Adds a new journal entry to the database and returns the new entry's ID."""
-    conn = get_db_connection()
-    c = conn.cursor()
-    c.execute("INSERT INTO entries (date, text, mood, productivity) VALUES (?, ?, ?, ?)",
-              (date, text, mood, productivity))
-    entry_id = c.lastrowid
-    conn.commit()
-    conn.close()
-    return entry_id
+    if db is None: return None
+    entry_document = {"date": date, "text": text, "mood": mood, "productivity": productivity}
+    result = db.entries.insert_one(entry_document)
+    return result.inserted_id
 
 def add_task(entry_id, task_text):
-    """Adds a new task associated with a journal entry."""
-    conn = get_db_connection()
-    c = conn.cursor()
-    c.execute("INSERT INTO tasks (entry_id, task_text) VALUES (?, ?)",
-              (entry_id, task_text))
-    conn.commit()
-    conn.close()
-
-def get_all_entries():
-    """Retrieves all journal entries from the database."""
-    conn = get_db_connection()
-    entries = conn.execute("SELECT * FROM entries ORDER BY date DESC").fetchall()
-    conn.close()
-    return entries
-
-def get_all_tasks():
-    """Retrieves all tasks from the database."""
-    conn = get_db_connection()
-    tasks = conn.execute("SELECT * FROM tasks ORDER BY entry_id DESC").fetchall()
-    conn.close()
-    return tasks
+    if db is None: return None
+    task_document = {"entry_id": entry_id, "task_text": task_text, "status": "pending", "completed": False}
+    db.tasks.insert_one(task_document)
 
 def update_task_status(task_id, completed):
-    """Updates the completion status of a task."""
-    conn = get_db_connection()
-    c = conn.cursor()
-    c.execute("UPDATE tasks SET completed = ? WHERE id = ?", (completed, task_id))
-    conn.commit()
-    conn.close()
+    if db is None: return None
+    db.tasks.update_one({"_id": ObjectId(task_id)}, {"$set": {"completed": completed}})
+
+# --- NEW ADVANCED QUERY FUNCTIONS FOR THE INDEX PAGE ---
+
+def get_all_entries_sorted_asc():
+    """Retrieves all journal entries, sorted by date ascending."""
+    if db is None: return []
+    return list(db.entries.find({}).sort("date", 1)) # 1 for ascending
+
+def get_pending_tasks():
+    """Retrieves all tasks that are not completed."""
+    if db is None: return []
+    return list(db.tasks.find({"completed": False}))
+
+def get_tasks_with_entry_info(completed_status=None, limit=5):
+    """
+    Replaces the SQL JOIN. Fetches tasks and includes the date from their parent entry.
+    Can filter by completion status.
+    """
+    if db is None: return []
+    pipeline = []
+
+    # Optional stage to filter by completed or not completed
+    if completed_status is not None:
+        pipeline.append({"$match": {"completed": completed_status}})
+
+    # Core stages to replicate the JOIN and shape the data
+    pipeline.extend([
+        {"$sort": {"_id": -1}}, # Sort by task creation time (desc) to get recent ones
+        {"$limit": limit},
+        {
+            "$lookup": { # This is the JOIN
+                "from": "entries",
+                "localField": "entry_id",
+                "foreignField": "_id",
+                "as": "entry_info"
+            }
+        },
+        {"$unwind": "$entry_info"}, # Deconstructs the entry_info array
+        {
+            "$project": { # Selects the final fields
+                "_id": 0,
+                "task_text": "$task_text",
+                "date": "$entry_info.date"
+            }
+        }
+    ])
+    return list(db.tasks.aggregate(pipeline))
+
+def get_chart_data(limit=30):
+    """Replaces the SQL GROUP BY. Aggregates entries by date for chart data."""
+    if db is None: return []
+    pipeline = [
+        {"$sort": {"date": -1}},
+        {"$limit": limit},
+        {
+            # Add a temporary field for numeric mood score
+            "$addFields": {
+                "mood_numeric": {
+                    "$switch": {
+                        "branches": [
+                            {"case": {"$eq": ["$mood", "positive"]}, "then": 1},
+                            {"case": {"$eq": ["$mood", "negative"]}, "then": -1}
+                        ],
+                        "default": 0
+                    }
+                }
+            }
+        },
+        {
+            # Group by date and calculate averages
+            "$group": {
+                "_id": "$date",
+                "avg_productivity": {"$avg": "$productivity"},
+                "avg_mood": {"$avg": "$mood_numeric"}
+            }
+        },
+        {"$sort": {"_id": 1}}, # Sort final results by date ascending
+        {
+            # Project to the final format for the chart
+            "$project": {
+                "date": "$_id",
+                "avg_productivity": "$avg_productivity",
+                "avg_mood": "$avg_mood",
+                "_id": 0
+            }
+        }
+    ]
+    return list(db.entries.aggregate(pipeline))
+
+def get_tasks_for_entry_ids(entry_ids):
+    """Efficiently fetches all tasks for a given list of entry IDs."""
+    if db is None or not entry_ids: return []
+    return list(db.tasks.find({"entry_id": {"$in": entry_ids}}))
+
+def execute_aggregation(collection_name, pipeline):
+    """Executes a generic aggregation pipeline on a specified collection."""
+    if db is None: return []
+    collection = db[collection_name]
+    return list(collection.aggregate(pipeline))
+
+def get_entries_and_tasks_for_date(date):
+    """
+    Fetches all entries for a specific date and joins their associated tasks
+    using an aggregation pipeline.
+    """
+    if db is None: return []
+    pipeline = [
+        # Stage 1: Filter entries by the specified date
+        {"$match": {"date": date}},
+        # Stage 2: Join with the tasks collection
+        {
+            "$lookup": {
+                "from": "tasks",
+                "localField": "_id",
+                "foreignField": "entry_id",
+                "as": "tasks_info"
+            }
+        },
+        # Stage 3: Reshape the output to match the template's needs
+        {
+            "$project": {
+                "_id": 0,
+                "journal_text": "$text",
+                "mood": "$mood",
+                "productivity": "$productivity",
+                # Project the fields needed from the tasks sub-documents
+                "tasks": {
+                    "$map": {
+                        "input": "$tasks_info",
+                        "as": "task",
+                        "in": {
+                            "task_text": "$$task.task_text",
+                            "status": "$$task.status",
+                            "completed": "$$task.completed"
+                        }
+                    }
+                }
+            }
+        }
+    ]
+    return list(db.entries.aggregate(pipeline))
+
+def delete_entries_and_tasks(entry_ids):
+    """Deletes a list of entries and their associated tasks by their string IDs."""
+    if db is None or not entry_ids:
+        return
+
+    # Convert string IDs from the form to MongoDB ObjectId
+    object_ids = [ObjectId(eid) for eid in entry_ids]
+
+    # First, delete all tasks associated with these entries
+    db.tasks.delete_many({"entry_id": {"$in": object_ids}})
+    
+    # Then, delete the entries themselves
+    db.entries.delete_many({"_id": {"$in": object_ids}})
+
