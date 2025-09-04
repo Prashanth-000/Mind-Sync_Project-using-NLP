@@ -18,7 +18,7 @@
       box-shadow: 0 8px 32px 0 rgba(44, 62, 80, 0.12);
       max-width: 900px;
       margin: 0 auto;
-      border: 1px solid #e0c3fc;
+      border: 1px solid rgba(255, 255, 255, 0.18);
     }
     h4 {
       color: #6a4cff;
@@ -94,10 +94,11 @@
               <td>
                 {% if entry.tasks %}
                   <ul class="mb-0 ps-3">
-                    {% for task_text, status, completed in entry.tasks %}
+                    <!-- FIX: Loop through task objects and access properties by key -->
+                    {% for task in entry.tasks %}
                       <li>
-                        {{ task_text }}
-                        {% if completed %} <span class="text-success">✔</span>{% endif %}
+                        {{ task.task_text }}
+                        {% if task.completed %} <span class="text-success">✔</span>{% endif %}
                       </li>
                     {% endfor %}
                   </ul>
