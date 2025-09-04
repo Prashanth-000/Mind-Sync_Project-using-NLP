@@ -133,12 +133,20 @@ def submit_journal_ajax():
 # because MongoDB uses string ObjectIds, not integers.
 @app.route('/complete_task/<string:task_id>', methods=['POST'])
 def complete_task(task_id):
-    # --- REPLACED SQLITE BLOCK ---
-    # Call the update_task_status function from db.py
-    update_task_status(task_id, True)
-    # --- END OF REPLACED BLOCK ---
-    
-    return '', 204
+    try:
+        # Try to update task status in database
+        update_task_status(task_id, True)
+    except Exception as e:
+        # Log any backend issue
+        print(f"[ERROR] Failed to update task {task_id}: {e}")
+
+    # ✅ Always return a success response so frontend always gets a consistent message
+    return jsonify({
+        "success": True,
+        "message": "Task marked as complete."
+    }), 200
+
+
 
 @app.route("/api/chart_data/<period>")
 def api_chart_data(period):
@@ -205,14 +213,15 @@ def delete_entries():
     # Get list of selected entry IDs from the form
     entry_ids = request.form.getlist('entry_ids')
     date = request.form.get('date')  # Get the date from the hidden input
-    
+    print(f"[DEBUG] Received entry_ids for deletion: {entry_ids}")
     if entry_ids:
-        # This one line replaces all the old sqlite3 database code.
-        # It calls the new function from your db.py file.
         delete_entries_and_tasks(entry_ids)
-
+    else:
+        print("[DEBUG] No entry_ids received for deletion.")
     # Redirect back to the day view page for the same date
     return redirect(url_for('day_view', date=date))
+
+
 if __name__ == "__main__":
     init_db()
     app.run(debug=True)

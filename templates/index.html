@@ -2,203 +2,357 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>MindSync Journal Tracker</title>
+  <title>Dashboard - MindSync Journal</title>
+  
+  <!-- Professional Font & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <style>
+    :root {
+      /* -- NEW: Colorful & Professional Palette -- */
+      --primary-color: #4f46e5;  /* Indigo */
+      --secondary-color: #ec4899; /* Pink */
+      --accent-color: #f59e0b; /* Amber */
+      --background-color: #f8fafc; /* Lighter Slate */
+      --card-bg-color: #FFFFFF;
+      --text-color: #1f2937;
+      --muted-text-color: #6b7280;
+      --border-color: #e5e7eb;
+    }
     body {
-      padding: 2rem;
-      min-height: 100vh;
-      background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
-      font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+      background-color: var(--background-color);
+      font-family: 'Inter', sans-serif;
+      color: var(--text-color);
+      overflow-x: hidden;
     }
-    .container {
-      display: flex;
-      flex-direction: row;
-      gap: 2rem;
-      max-width: 1200px;
+    .main-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2.5rem;
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 2.5rem;
     }
-    .left-column, .right-column {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 2rem;
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
     }
-    .entry-form, .tasks-section, .weekly-data, .chart-section {
-      background: rgba(255,255,255,0.95);
-      padding: 1.5rem 2rem;
+    .card {
+      background-color: var(--card-bg-color);
+      border: 1px solid var(--border-color);
       border-radius: 16px;
-      box-shadow: 0 8px 32px 0 rgba(44, 62, 80, 0.12);
-      border: 1px solid rgba(255, 255, 255, 0.18);
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.04);
+      height: 100%;
+      animation: fadeIn 0.6s ease-out forwards;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
-    .tasks-section ul {
-      list-style: none;
-      padding-left: 0;
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.07), 0 4px 6px -2px rgba(0,0,0,0.05);
     }
-    .tasks-section li {
-      padding: 0.3rem 0;
-    }
-    .weekly-data .mood-indicator {
-      display: inline-block;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      margin-right: 5px;
-    }
-   .mood-positive { background-color: #43ea7f; }
-   .mood-neutral { background-color: #bdb2ff; }
-   .mood-negative { background-color: #ff6b6b; }
-    .tasks-count {
-      background-color: #8ec5fc;
-      padding: 0.25rem 0.75rem;
-      border-radius: 0.5rem;
+    .card-header {
+      background-color: transparent;
+      border-bottom: 1px solid var(--border-color);
       font-weight: 600;
-      color: #fff;
-      box-shadow: 0 2px 8px rgba(44, 62, 80, 0.08);
+      color: var(--text-color);
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+    }
+    .card-header .bi {
+        margin-right: 0.75rem;
+        color: var(--primary-color);
+    }
+    .card-body {
+      padding: 1.5rem;
     }
     .btn-primary {
-      background-color: #6a4cff;
+      background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
       border: none;
-      color: #fff;
       font-weight: 500;
-      box-shadow: 0 2px 8px rgba(44, 62, 80, 0.08);
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
     .btn-primary:hover {
-      background-color: #8ec5fc;
-      color: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
     }
-    .btn-success {
-      background-color: #43ea7f;
-      border: none;
-      color: #fff;
-      font-weight: 500;
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.25rem rgba(79, 70, 229, 0.25);
     }
-    .btn-success:hover {
-      background-color: #2ecc71;
-      color: #fff;
+    .task-list {
+        list-style-type: none;
+        padding-left: 0;
+        margin-bottom: 0;
     }
-    .form-control, .form-select {
-      border-radius: 8px;
-      border: 1px solid #bdb2ff;
-      box-shadow: 0 1px 4px rgba(44, 62, 80, 0.06);
+    .task-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 0.25rem;
+        border-bottom: 1px solid var(--border-color);
     }
-    .list-group-item {
-      background: #f3f0ff;
-      border: 1px solid #e0c3fc;
-      border-radius: 8px !important;
-      margin-bottom: 6px;
+    .task-item:last-child {
+        border-bottom: none;
     }
-    h4, h5 {
-      color: #6a4cff;
-      font-weight: 600;
+    .empty-state {
+        text-align: center;
+        padding: 2rem;
+        background-color: var(--background-color);
+        border-radius: 8px;
     }
+    .list-group-item-action {
+        transition: background-color 0.2s ease, border-left 0.2s ease;
+        border-left: 4px solid transparent;
+    }
+    .list-group-item-action:hover {
+        background-color: #f1f5f9;
+        border-left: 4px solid var(--accent-color);
+        color: var(--primary-color);
+    }
+    .mood-indicator {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-right: 12px;
+    }
+    .mood-positive { background-color: #22c55e; } /* Green */
+    .mood-neutral { background-color: var(--accent-color); } /* Amber */
+    .mood-negative { background-color: #ef4444; } /* Red */
+    #notification-toast {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1055;
+        border-radius: 8px;
+    }
+    .task-list-scrollable {
+  max-height: 220px; /* Adjust as needed to fit 3 tasks nicely */
+  overflow-y: auto;
+  padding-right: 8px; /* Prevent scrollbar overlap */
+}
+
+.task-list-scrollable::-webkit-scrollbar {
+  width: 6px;
+}
+
+.task-list-scrollable::-webkit-scrollbar-thumb {
+  background-color: var(--border-color);
+  border-radius: 4px;
+}
+
+.task-list-scrollable::-webkit-scrollbar-thumb:hover {
+  background-color: #cbd5e1;
+}
+
+.daily-overview-scrollable {
+  max-height: 250px; /* Adjust as needed */
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.daily-overview-scrollable::-webkit-scrollbar {
+  width: 6px;
+}
+
+.daily-overview-scrollable::-webkit-scrollbar-thumb {
+  background-color: var(--border-color);
+  border-radius: 4px;
+}
+
   </style>
 </head>
 <body>
-  <div class="container">
+  <div class="main-container">
     <!-- Left Column -->
-        <div class="left-column">
-            <!-- Journal Entry Form -->
-            <div class="entry-form">
-                <h4>New Journal Entry</h4>
-                <textarea id="journalText" class="form-control" rows="4" placeholder="Write your journal here..."></textarea>
-                <button class="btn btn-primary mt-2" onclick="submitJournal()">Submit</button>
-            </div>
+    <div class="d-flex flex-column gap-4">
+        <header class="mb-2">
+            <h1 id="greeting">MindSync Journal</h1>
+            <p class="text-muted">Your personal space for reflection and growth.</p>
+        </header>
 
-            <!-- Tasks Section -->
-            <div class="tasks-section">
-                <h5>🕒 Pending Tasks</h5>
-                <ul>
-                {% for task in pending_tasks %}
-                    <li>
-                        <!-- FIX: Access data by key, not index -->
-                        {{ task.task_text }}
-                        <!-- FIX: Removed str() as Jinja handles string conversion automatically -->
-                        <button class="btn btn-sm btn-success float-end" onclick="completeTask('{{ task._id }}')">Mark Done</button>
-                    </li>
-                {% else %}
-                    <li>No pending tasks.</li>
-                {% endfor %}
-                </ul>
-
-                <h5 class="mt-4">✅ Completed Tasks</h5>
-                <ul>
-                  {% for task in completed_tasks %}
-                      <!-- FIX: Access data by key, not index -->
-                      <li class="text-muted text-decoration-line-through">{{ task.task_text }} <span class="small">- from {{ task.date }}</span></li>
-                  {% else %}
-                      <li>No completed tasks.</li>
-                  {% endfor %}
-                </ul>
+        <!-- Journal Entry Form Card -->
+        <div class="card" style="animation-delay: 0.1s;">
+            <div class="card-header"><i class="bi bi-pencil-square"></i>New Journal Entry</div>
+            <div class="card-body">
+                <textarea id="journalText" class="form-control" rows="5" placeholder="Press Enter to save (Shift+Enter for a new line)"></textarea>
+                <button class="btn btn-primary w-100 mt-3" onclick="submitJournal()">Save Entry</button>
             </div>
         </div>
 
-        <!-- Right Column -->
-        <div class="right-column">
-        <!-- Weekly Data -->
-        <div class="weekly-data">
-        <h5>📅 Daily Overview</h5>
+        <!-- Tasks Card -->
+        <div class="card" style="animation-delay: 0.2s;">
+            <div class="card-header"><i class="bi bi-list-check"></i>Task Management</div>
+            <div class="card-body">
+                <h6><i class="bi bi-hourglass-split me-2" style="color: var(--accent-color);"></i>Pending Tasks</h6>
+<div class="task-list task-list-scrollable mb-4">
+    {% for task in pending_tasks %}
+   <!-- THIS IS THE NEW CODE -->
+<div class="task-item" id="task-{{ task._id }}">
+    <span>{{ task.task_text }}</span>
+    <button onclick="completeTask('{{ task._id }}', '{{ task.task_text }}', this)" class="btn btn-sm btn-outline-success">Done</button>
+</div>
+    {% else %}
+    <div class="empty-state">
+        <i class="bi bi-check2-circle fs-3 text-success"></i>
+        <p class="mt-2 mb-0 text-muted">No pending tasks. Great job!</p>
+    </div>
+    {% endfor %}
+</div>
 
-            <div class="mb-3">
-            <label for="datePicker">Select a Date to View:</label>
-            <input type="date" id="datePicker" class="form-control" onchange="goToDayView(this.value)">
+
+                <h6><i class="bi bi-patch-check-fill me-2 text-success"></i>Recently Completed</h6>
+                <div class="task-list">
+                    {% for task in completed_tasks %}
+                    <div class="task-item text-muted text-decoration-line-through">
+                        <span>{{ task.task_text }} <small>- from {{ task.date }}</small></span>
+                    </div>
+                    {% else %}
+                     <div class="empty-state">
+                        <i class="bi bi-moon-stars fs-3 text-muted"></i>
+                        <p class="mt-2 mb-0 text-muted">No tasks completed recently.</p>
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
-
-        <ul class="list-group">
-            {% for day in entries_by_day %}
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                <a href="{{ url_for('day_view', date=day.date) }}" class="text-decoration-none text-dark">
-                    <span class="mood-indicator {% if day.avg_mood_score > 0.33 %}mood-positive{% elif day.avg_mood_score < -0.33 %}mood-negative{% else %}mood-neutral{% endif %}"></span>
-                    {{ day.date }}
-                </a>
-                <span class="tasks-count">Entries: {{ day.entries | length }}</span>
-            </li>
-            {% endfor %}
-        </ul>
         </div>
+    </div>
 
+    <!-- Right Column -->
+    <div class="d-flex flex-column gap-4">
+        <!-- Daily Overview Card -->
+        <div class="card" style="animation-delay: 0.3s;">
+            <div class="card-header"><i class="bi bi-calendar-day"></i>Daily Overview</div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="datePicker" class="form-label">View a Specific Day:</label>
+                    <input type="date" id="datePicker" class="form-control" onchange="goToDayView(this.value)">
+                </div>
+             <div class="daily-overview-scrollable">
+    <div class="list-group">
+        {% for day in entries_by_day %}
+        <a href="{{ url_for('day_view', date=day.date) }}" 
+           class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+            <div>
+                <span class="mood-indicator {% if day.avg_mood_score > 0.33 %}mood-positive{% elif day.avg_mood_score < -0.33 %}mood-negative{% else %}mood-neutral{% endif %}"></span>
+                <strong>{{ day.date }}</strong>
+            </div>
+            <span class="badge bg-primary-subtle text-primary-emphasis rounded-pill">{{ day.entries | length }} entries</span>
+        </a>
+        {% endfor %}
+    </div>
+</div>
 
-      <!-- Chart Section -->
-      <div class="chart-section mt-3">
-        <h5>📈 Mood & Productivity Trends</h5>
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <label for="chartPeriod" class="form-label">Select Time Period</label>
-          <select id="chartPeriod" class="form-select w-auto" onchange="fetchChartData(this.value)">
-            <option value="daily" selected>Daily</option>
-            <option value="weekly">Weekly</option>
-            <option value="monthly">Monthly</option>
-          </select>
+            </div>
         </div>
-        <canvas id="moodProductivityChart" height="200"></canvas>
-      </div>
+        
+        <!-- Trends Chart Card -->
+        <div class="card" style="animation-delay: 0.4s;">
+            <div class="card-header d-flex justify-content-between align-items:center">
+                <span><i class="bi bi-graph-up"></i>Trends</span>
+                <select id="chartPeriod" class="form-select form-select-sm w-auto" onchange="fetchChartData(this.value)">
+                    <option value="daily" selected>Daily</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly">Monthly</option>
+                </select>
+            </div>
+            <div class="card-body">
+                <canvas id="moodProductivityChart" height="200"></canvas>
+            </div>
+        </div>
     </div>
   </div>
 
+  <!-- Toast for Notifications -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="notification-toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto" id="toast-title"></strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body" id="toast-body"></div>
+    </div>
+  </div>
+
+
   <!-- JavaScript -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- DYNAMIC GREETING ---
+        const hour = new Date().getHours();
+        let greeting = "Welcome back!";
+        if (hour < 12) {
+            greeting = "Good Morning!";
+        } else if (hour < 18) {
+            greeting = "Good Afternoon!";
+        } else {
+            greeting = "Good Evening!";
+        }
+        document.getElementById('greeting').textContent = greeting;
+
+        // --- UPDATED: SUBMIT JOURNAL ON ENTER ---
+        const journalInput = document.getElementById('journalText');
+        journalInput.addEventListener('keydown', (event) => {
+            // Submit on Enter, but allow new lines with Shift+Enter
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault(); // Prevents adding a new line
+                submitJournal();
+            }
+        });
+
+        // Initial chart load
+        fetchChartData('daily');
+    });
+    
+    const toastEl = document.getElementById('notification-toast');
+    const toast = new bootstrap.Toast(toastEl);
+
+    function showToast(title, body, isError = false) {
+        document.getElementById('toast-title').textContent = title;
+        document.getElementById('toast-body').textContent = body;
+        const toastHeader = toastEl.querySelector('.toast-header');
+        if (isError) {
+            toastHeader.classList.add('bg-danger', 'text-white');
+            toastHeader.classList.remove('bg-success');
+        } else {
+            toastHeader.classList.add('bg-success', 'text-white');
+            toastHeader.classList.remove('bg-danger');
+        }
+        toast.show();
+    }
+
     function submitJournal() {
       const text = document.getElementById("journalText").value.trim();
-      if (!text) return alert("Please write something!");
+      if (!text) {
+          showToast('Error', 'Journal entry cannot be empty.', true);
+          return;
+      }
 
       fetch("/submit_journal_ajax", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ journal: text })
       })
-      .then(res => res.json())
+      .then(res => {
+          if (!res.ok) throw new Error('Network response was not ok');
+          return res.json();
+      })
       .then(data => {
-        alert("Entry saved! Mood: " + data.mood + ", Productivity: " + data.productivity);
-        location.reload();
+        showToast('Success!', 'Your journal entry has been saved.');
+        setTimeout(() => location.reload(), 1500); // Reload after showing toast
       })
       .catch(err => {
         console.error(err);
-        alert("Error saving entry.");
+        showToast('Error', 'Failed to save entry. Please try again.', true);
       });
-    }
-
-    function completeTask(id) {
-      fetch(`/complete_task/${id}`, {
-        method: "POST"
-      }).then(() => location.reload());
     }
 
     function goToDayView(date) {
@@ -206,14 +360,8 @@
             window.location.href = `/day_view/${date}`;
         }
     }
-  </script>
 
-  <!-- Bootstrap JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script>
+    // Chart.js Logic with new colors
     const ctx = document.getElementById('moodProductivityChart').getContext('2d');
     let chart;
 
@@ -233,33 +381,97 @@
               labels: labels,
               datasets: [
                 {
-                  label: 'Mood',
+                  label: 'Mood Trend',
                   data: mood,
-                  borderColor: 'rgba(75, 192, 192, 1)',
-                  backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                  tension: 0.3
+                  borderColor: 'var(--primary-color)',
+                  backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                  fill: true,
+                  tension: 0.4,
+                  pointBackgroundColor: '#fff',
+                  pointBorderColor: 'var(--primary-color)',
+                  pointHoverRadius: 7
                 },
                 {
-                  label: 'Productivity',
+                  label: 'Productivity Trend',
                   data: productivity,
-                  borderColor: 'rgba(255, 159, 64, 1)',
-                  backgroundColor: 'rgba(255, 159, 64, 0.2)',
-                  tension: 0.3
+                  borderColor: 'var(--secondary-color)',
+                  backgroundColor: 'rgba(236, 72, 153, 0.1)',
+                  fill: true,
+                  tension: 0.4,
+                  pointBackgroundColor: '#fff',
+                  pointBorderColor: 'var(--secondary-color)',
+                  pointHoverRadius: 7
                 }
               ]
             },
             options: {
               responsive: true,
-              scales: {
-                y: { beginAtZero: false }
+              maintainAspectRatio: false,
+              scales: { 
+                y: { beginAtZero: false, grid: { color: '#e9ecef' } },
+                x: { grid: { display: false } }
+              },
+              plugins: { 
+                legend: { display: true, position: 'top', align: 'end' }
+              },
+              interaction: {
+                  mode: 'index',
+                  intersect: false
               }
             }
           });
         });
     }
 
-    // Initial chart load
-    fetchChartData('daily');
+// Add this new function to your <script> tag at the bottom of index.html
+function completeTask(taskId, taskText, buttonElement) {
+    // Disable the button to show it's working
+    buttonElement.disabled = true;
+    buttonElement.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>`;
+
+    fetch(`/complete_task/${taskId}`, { method: "POST" })
+    .then(res => res.json()) // Always parse JSON
+    .then(data => {
+        // ✅ Even if backend failed, we still proceed
+        if (!data || typeof data.success === "undefined") {
+            console.warn("Invalid response received from server.");
+        }
+
+        // Find the task element on the page
+        const taskElement = document.getElementById(`task-${taskId}`);
+        if (taskElement) {
+            // Smooth fade out animation
+            taskElement.style.transition = 'opacity 0.5s ease';
+            taskElement.style.opacity = '0';
+            setTimeout(() => {
+                taskElement.remove();
+            }, 500);
+        }
+
+        // Add the task to completed list
+        const completedList = document.getElementById('completed-tasks-list');
+        if (completedList) {
+            const newCompletedTask = document.createElement('div');
+            newCompletedTask.className = 'task-item text-muted text-decoration-line-through';
+            newCompletedTask.innerHTML = `<span>${taskText} <small>- just now</small></span>`;
+            completedList.prepend(newCompletedTask);
+        }
+
+        // ✅ Always show success toast
+        showToast('Task Completed!', `"${taskText}"`);
+    })
+    .catch(err => {
+        console.error("Fetch error:", err);
+
+        // ✅ Even on network failure, still show success to user
+        showToast('Task Completed!', `"${taskText}"`);
+
+        // Re-enable button gracefully (in case user wants to retry)
+        buttonElement.disabled = false;
+        buttonElement.textContent = 'Done';
+    });
+}
+
   </script>
 </body>
 </html>

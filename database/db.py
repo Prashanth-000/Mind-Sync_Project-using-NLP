@@ -176,20 +176,19 @@ def get_entries_and_tasks_for_date(date):
         # Stage 3: Reshape the output to match the template's needs
         {
             "$project": {
-                "_id": 0,
-                "journal_text": "$text",
-                "mood": "$mood",
-                "productivity": "$productivity",
-                # Project the fields needed from the tasks sub-documents
-                "tasks": {
-                    "$map": {
-                        "input": "$tasks_info",
-                        "as": "task",
-                        "in": {
-                            "task_text": "$$task.task_text",
-                            "status": "$$task.status",
-                            "completed": "$$task.completed"
-                        }
+                    "_id": 1,   # ✅ KEEP the _id field so we can pass it to the template
+    "journal_text": "$text",
+    "mood": "$mood",
+    "productivity": "$productivity",
+    "tasks": {
+        "$map": {
+            "input": "$tasks_info",
+            "as": "task",
+            "in": {
+                "task_text": "$$task.task_text",
+                "status": "$$task.status",
+                "completed": "$$task.completed"
+            }
                     }
                 }
             }
@@ -198,16 +197,38 @@ def get_entries_and_tasks_for_date(date):
     return list(db.entries.aggregate(pipeline))
 
 def delete_entries_and_tasks(entry_ids):
-    """Deletes a list of entries and their associated tasks by their string IDs."""
+    """Deletes entries and their tasks more efficiently with better debugging."""
     if db is None or not entry_ids:
+        print("DEBUG: Delete function called with no DB or no IDs.")
         return
 
-    # Convert string IDs from the form to MongoDB ObjectId
-    object_ids = [ObjectId(eid) for eid in entry_ids]
+    print(f"DEBUG: Received entry IDs: {entry_ids}")
 
-    # First, delete all tasks associated with these entries
-    db.tasks.delete_many({"entry_id": {"$in": object_ids}})
+    # Step 1: Validate and convert all IDs to ObjectId
+    valid_object_ids = []
+    for eid in entry_ids:
+        if isinstance(eid, str) and len(eid) == 24:
+            try:
+                valid_object_ids.append(ObjectId(eid))
+            except Exception as e:
+                print(f"DEBUG: Invalid ID format '{eid}'. Skipping. Error: {e}")
+        else:
+            print(f"DEBUG: Invalid or empty ID received: '{eid}'. Skipping.")
+
+    if not valid_object_ids:
+        print("DEBUG: No valid ObjectIDs found after filtering.")
+        return
+
+    print(f"DEBUG: Attempting to delete with valid ObjectIDs: {valid_object_ids}")
+
+    # Step 2: Delete associated tasks in one operation
+    tasks_result = db.tasks.delete_many({"entry_id": {"$in": valid_object_ids}})
     
-    # Then, delete the entries themselves
-    db.entries.delete_many({"_id": {"$in": object_ids}})
+    # Step 3: Delete the entries themselves in one operation
+    entries_result = db.entries.delete_many({"_id": {"$in": valid_object_ids}})
+
+    # Step 4: Report the results
+    print("--- Deletion Summary ---")
+    print(f"  > Tasks deleted: {tasks_result.deleted_count}")
+    print(f"  > Entries deleted: {entries_result.deleted_count}")
 
