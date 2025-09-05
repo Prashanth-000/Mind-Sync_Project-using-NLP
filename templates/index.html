@@ -1,3 +1,6 @@
+{% extends "layout.html" %}
+{% block content %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -425,54 +428,56 @@
 
 // Add this new function to your <script> tag at the bottom of index.html
 function completeTask(taskId, taskText, buttonElement) {
-    // Disable the button to show it's working
-    buttonElement.disabled = true;
-    buttonElement.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>`;
+        buttonElement.disabled = true;
+        buttonElement.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>`;
 
-    fetch(`/complete_task/${taskId}`, { method: "POST" })
-    .then(res => res.json()) // Always parse JSON
-    .then(data => {
-        // ✅ Even if backend failed, we still proceed
-        if (!data || typeof data.success === "undefined") {
-            console.warn("Invalid response received from server.");
-        }
+        fetch(`/complete_task/${taskId}`, { method: "POST" })
+        .then(res => {
+            if (!res.ok) throw new Error('Failed to update task.');
+            return res.json();
+        })
+        .then(data => {
+            if (data.success) {
+                const taskElement = document.getElementById(`task-${taskId}`);
+                if(taskElement) {
+                    taskElement.style.transition = 'opacity 0.5s ease';
+                    taskElement.style.opacity = '0';
+                    setTimeout(() => {
+                        taskElement.remove();
+                        const pendingList = document.getElementById('pending-tasks-list');
+                        // FIX: Check if the element exists before trying to access its properties
+                        if (pendingList && !pendingList.querySelector('.task-item')) {
+                            const noPendingTasksMsg = document.getElementById('no-pending-tasks');
+                            if (noPendingTasksMsg) noPendingTasksMsg.style.display = 'block';
+                        }
+                    }, 500);
+                }
 
-        // Find the task element on the page
-        const taskElement = document.getElementById(`task-${taskId}`);
-        if (taskElement) {
-            // Smooth fade out animation
-            taskElement.style.transition = 'opacity 0.5s ease';
-            taskElement.style.opacity = '0';
-            setTimeout(() => {
-                taskElement.remove();
-            }, 500);
-        }
+                const completedList = document.getElementById('completed-tasks-list');
+                const noCompletedTasksMsg = document.getElementById('no-completed-tasks');
+                // FIX: Check if the element exists before trying to access its properties
+                if (noCompletedTasksMsg) noCompletedTasksMsg.style.display = 'none';
 
-        // Add the task to completed list
-        const completedList = document.getElementById('completed-tasks-list');
-        if (completedList) {
-            const newCompletedTask = document.createElement('div');
-            newCompletedTask.className = 'task-item text-muted text-decoration-line-through';
-            newCompletedTask.innerHTML = `<span>${taskText} <small>- just now</small></span>`;
-            completedList.prepend(newCompletedTask);
-        }
-
-        // ✅ Always show success toast
-        showToast('Task Completed!', `"${taskText}"`);
-    })
-    .catch(err => {
-        console.error("Fetch error:", err);
-
-        // ✅ Even on network failure, still show success to user
-        showToast('Task Completed!', `"${taskText}"`);
-
-        // Re-enable button gracefully (in case user wants to retry)
-        buttonElement.disabled = false;
-        buttonElement.textContent = 'Done';
-    });
-}
+                const newCompletedTask = document.createElement('div');
+                newCompletedTask.className = 'task-item text-muted text-decoration-line-through';
+                newCompletedTask.innerHTML = `<span>${taskText} <small>- just now</small></span>`;
+                if(completedList) completedList.prepend(newCompletedTask);
+                
+                showToast('Task Completed!', `"${taskText}"`);
+            } else {
+                throw new Error(data.message || 'Server returned an error.');
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            showToast('Error', 'Could not complete task.', true);
+            buttonElement.disabled = false;
+            buttonElement.textContent = 'Done';
+        });
+    }
 
   </script>
 </body>
 </html>
 
+{% endblock content %}

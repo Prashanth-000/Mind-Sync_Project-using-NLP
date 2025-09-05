@@ -1,0 +1,78 @@
+{% extends "layout.html" %}
+{% block content %}
+<style>
+    .login-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 80vh;
+        padding: 2rem 0;
+    }
+    .login-card {
+        width: 100%;
+        max-width: 450px;
+        background-color: var(--card-bg-color, #fff);
+        border: 1px solid var(--border-color, #e5e7eb);
+        border-radius: 16px;
+        box-shadow: 0 10px 15px -3px rgba(0,0,0,0.07), 0 4px 6px -2px rgba(0,0,0,0.05);
+        overflow: hidden;
+    }
+    .login-header {
+        text-align: center;
+        padding: 2rem 1.5rem 1rem 1.5rem;
+    }
+    .login-header .icon {
+        display: inline-block;
+        background: linear-gradient(45deg, var(--primary-color, #4f46e5), var(--secondary-color, #ec4899));
+        color: white;
+        padding: 1rem;
+        border-radius: 50%;
+        font-size: 2rem;
+        line-height: 1;
+        margin-bottom: 1rem;
+    }
+    .form-control, .btn {
+        min-height: 50px;
+        border-radius: 8px;
+    }
+    .btn-primary {
+      background: linear-gradient(45deg, var(--primary-color, #4f46e5), var(--secondary-color, #ec4899));
+      border: none;
+      font-weight: 500;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+</style>
+
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <div class="icon"><i class="bi bi-unlock"></i></div>
+            <h3>Welcome Back</h3>
+            <p class="text-muted">Sign in to continue to your journal.</p>
+        </div>
+        <div class="card-body p-4">
+            <form method="POST" action="">
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email address</label>
+                    <input type="email" class="form-control" id="email" name="email" placeholder="you@example.com" required>
+                </div>
+                <div class="mb-4">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" name="password" placeholder="••••••••" required>
+                </div>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary btn-lg">Log In</button>
+                </div>
+            </form>
+            <div class="text-center mt-4">
+                <small class="text-muted">Don't have an account? <a href="{{ url_for('register') }}" style="color: var(--primary-color);">Sign Up</a></small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+

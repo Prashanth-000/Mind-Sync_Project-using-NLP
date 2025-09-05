@@ -1,14 +1,26 @@
 from textblob import TextBlob
 import nltk
-nltk.download('vader_lexicon')
 from nltk.sentiment import SentimentIntensityAnalyzer
 
+# Note: The first time you run the app, this will download the necessary model.
+# In a production environment, this would typically be part of a setup script.
+try:
+    nltk.data.find('sentiment/vader_lexicon.zip')
+except nltk.downloader.DownloadError:
+    nltk.download('vader_lexicon')
+
 def analyze_text(text):
+    """
+    Analyzes text to determine mood using both TextBlob and VADER.
+    """
     blob = TextBlob(text)
     polarity = blob.sentiment.polarity
 
     sia = SentimentIntensityAnalyzer()
     vader_score = sia.polarity_scores(text)
 
+    # Use a threshold on TextBlob's polarity for mood classification
     mood = 'positive' if polarity > 0.2 else 'negative' if polarity < -0.2 else 'neutral'
+    
+    # Return a dictionary with detailed analysis results
     return {'polarity': polarity, 'vader': vader_score, 'mood': mood}
