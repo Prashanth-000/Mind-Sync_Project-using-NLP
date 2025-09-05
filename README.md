@@ -47,7 +47,7 @@ Make sure you have:
 
 #### 1. Clone the Repository
 ```bash
-git clone https://github.com/your-username/mindsync-journal.git
+git clone https://github.com/Prashanth-000/Mind-Sync_Project-using-NLP
 cd mindsync-journal
 ```
 
