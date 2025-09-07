@@ -1,3 +1,9 @@
-flask
+Flask
 pymongo
 python-dotenv
+Flask-Login
+Flask-Bcrypt
+textblob
+nltk
+google-generativeai
+Flask-Mail
