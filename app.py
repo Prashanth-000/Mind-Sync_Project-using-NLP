@@ -215,33 +215,20 @@ def send_report():
     user_email = current_user.email
     subject = f"MindSync Wellness Report for User: {user_email}"
 
-     
+    # Format the JSON summary into a clean HTML email
     html_body = f"""
     <html>
-    <head>
-        <style>
-            body {{ font-family: sans-serif; line-height: 1.6; color: #333; }}
-            h3 {{ color: #4f46e5; border-bottom: 2px solid #e5e7eb; padding-bottom: 5px;}}
-            ul {{ list-style-type: none; padding-left: 0; }}
-            li {{ background-color: #f8fafc; margin-bottom: 8px; padding: 12px; border-left: 4px solid #ec4899; border-radius: 4px; }}
-        </style>
-    </head>
-    <body>
-        <h2>MindSync AI Wellness Summary</h2>
-        <p>This report was generated for user <strong>{user_email}</strong> on {datetime.now().strftime('%Y-%m-%d %H:%M')}.</p>
-        
-        <h3>Positive Aspects</h3>
-        <ul>{''.join([f'<li>{item}</li>' for item in summary.get("positive_aspects", [])])}</ul>
-        
-        <h3>Areas for Reflection</h3>
-        <ul>{''.join([f'<li>{item}</li>' for item in summary.get("negative_aspects", [])])}</ul>
-        
-        <h3>Improvement Tips</h3>
-        <ul>{''.join([f'<li>{item}</li>' for item in summary.get("improvement_tips", [])])}</ul>
-        
-        <h3>Other Insights</h3>
-        <ul>{''.join([f'<li>{item}</li>' for item in summary.get("other_factors", [])])}</ul>
-    </body>
+        <body>
+            <h2>MindSync AI Wellness Summary for {user_email}</h2>
+            <h3>Positive Aspects</h3>
+            <ul>{''.join([f'<li>{item}</li>' for item in summary.get("positive_aspects", [])])}</ul>
+            <h3>Areas for Reflection</h3>
+            <ul>{''.join([f'<li>{item}</li>' for item in summary.get("negative_aspects", [])])}</ul>
+            <h3>Improvement Tips</h3>
+            <ul>{''.join([f'<li>{item}</li>' for item in summary.get("improvement_tips", [])])}</ul>
+            <h3>Other Insights</h3>
+            <ul>{''.join([f'<li>{item}</li>' for item in summary.get("other_factors", [])])}</ul>
+        </body>
     </html>
     """
     
@@ -252,7 +239,7 @@ def send_report():
     except Exception as e:
         print(f"Failed to send email: {e}")
         return jsonify({"success": False, "error": "Failed to send the report."}), 500
-
+    
 @app.route("/api/get_summary/<string:period>")
 @login_required
 def get_summary(period):

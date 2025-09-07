@@ -289,11 +289,12 @@
         </div>
     </div>
   </div>
-  <div class="modal fade" id="summaryModal" tabindex="-1" aria-labelledby="summaryModalLabel" aria-hidden="true">
+  
+<div class="modal fade" id="summaryModal" tabindex="-1" aria-labelledby="summaryModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="summaryModalLabel">Wellness Summary</h5>
+        <h5 class="modal-title" id="summaryModalLabel">AI Wellness Summary</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body" id="summaryModalBody">
@@ -307,6 +308,16 @@
             <!-- Content will be injected here by JavaScript -->
         </div>
         <div id="summary-error" class="d-none alert alert-danger"></div>
+      </div>
+      <!--
+        FIX: Added the modal-footer which was missing.
+        It contains the "Send Report" button and is hidden by default.
+      -->
+      <div class="modal-footer" id="summary-footer" style="display: none;">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" id="send-report-button" onclick="sendReport()">
+              <i class="bi bi-send"></i> Send Report
+          </button>
       </div>
     </div>
   </div>
@@ -518,63 +529,108 @@ function completeTask(taskId, taskText, buttonElement) {
     // ... (your existing JavaScript functions like showToast, submitJournal, etc.)
 
 // ADD THIS NEW FUNCTION
-function getSummary(period) {
-    const modalElement = document.getElementById('summaryModal');
-    const summaryModal = bootstrap.Modal.getOrCreateInstance(modalElement);
+let currentSummaryData = null;
 
-    const loadingSpinner = document.getElementById('summary-loading');
-    const contentArea = document.getElementById('summary-content');
-    const errorArea = document.getElementById('summary-error');
-    
-    // Reset the modal to its loading state
-    loadingSpinner.classList.remove('d-none');
-    contentArea.classList.add('d-none');
-    errorArea.classList.add('d-none');
-    summaryModal.show();
+    // --- CORRECTED FUNCTION ---
+    function getSummary(period) {
+        const modalElement = document.getElementById('summaryModal');
+        const summaryModal = bootstrap.Modal.getOrCreateInstance(modalElement);
 
-    fetch(`/api/get_summary/${period}`)
-    .then(res => {
-        if (!res.ok) return res.json().then(err => { throw new Error(err.error || 'An unknown error occurred.') });
-        return res.json();
-    })
-    .then(data => {
-        if (data.error) {
-            errorArea.textContent = data.error;
+        const loadingSpinner = document.getElementById('summary-loading');
+        const contentArea = document.getElementById('summary-content');
+        const errorArea = document.getElementById('summary-error');
+        const footer = document.getElementById('summary-footer');
+        
+        // Reset the modal to its loading state
+        loadingSpinner.classList.remove('d-none');
+        contentArea.classList.add('d-none');
+        errorArea.classList.add('d-none');
+        footer.style.display = 'none'; // FIX: Hide footer initially
+        currentSummaryData = null; // FIX: Clear old summary data
+        summaryModal.show();
+
+        fetch(`/api/get_summary/${period}`)
+        .then(res => {
+            if (!res.ok) return res.json().then(err => { throw new Error(err.error || 'An unknown error occurred.') });
+            return res.json();
+        })
+        .then(data => {
+            if (data.error) {
+                errorArea.textContent = data.error;
+                errorArea.classList.remove('d-none');
+            } else {
+                // Build the HTML for the summary content
+                let contentHtml = `
+                    <div class="summary-modal-section">
+                        <h6><i class="bi bi-emoji-smile-fill text-success"></i> Positive Aspects</h6>
+                        <ul>${data.positive_aspects.map(item => `<li>${item}</li>`).join('') || '<li class="text-muted">None noted.</li>'}</ul>
+                    </div>
+                    <div class="summary-modal-section mt-4">
+                        <h6><i class="bi bi-emoji-frown-fill text-danger"></i> Areas for Reflection</h6>
+                        <ul>${data.negative_aspects.map(item => `<li>${item}</li>`).join('') || '<li class="text-muted">None noted.</li>'}</ul>
+                    </div>
+                    <div class="summary-modal-section mt-4">
+                        <h6><i class="bi bi-lightbulb-fill text-warning"></i> Improvement Tips</h6>
+                        <ul>${data.improvement_tips.map(item => `<li>${item}</li>`).join('') || '<li class="text-muted">None noted.</li>'}</ul>
+                    </div>
+                    <div class="summary-modal-section mt-4">
+                        <h6><i class="bi bi-search text-info"></i> Other Insights</h6>
+                        <ul>${data.other_factors.map(item => `<li>${item}</li>`).join('') || '<li class="text-muted">None noted.</li>'}</ul>
+                    </div>
+                `;
+                contentArea.innerHTML = contentHtml;
+                contentArea.classList.remove('d-none');
+
+                // --- FIX: Store data and show the footer ---
+                currentSummaryData = data; // Store the successful response
+                footer.style.display = 'flex'; // Show the footer with the send button
+            }
+        })
+        .catch(err => {
+            console.error('Error fetching summary:', err);
+            errorArea.textContent = err.message;
             errorArea.classList.remove('d-none');
-        } else {
-            // Build the HTML for the summary content
-            let contentHtml = `
-                <div class="summary-modal-section">
-                    <h6><i class="bi bi-emoji-smile-fill text-success"></i> Positive Aspects</h6>
-                    <ul>${data.positive_aspects.map(item => `<li>${item}</li>`).join('') || '<li class="text-muted">None noted.</li>'}</ul>
-                </div>
-                <div class="summary-modal-section mt-4">
-                    <h6><i class="bi bi-emoji-frown-fill text-danger"></i> Areas for Reflection</h6>
-                    <ul>${data.negative_aspects.map(item => `<li>${item}</li>`).join('') || '<li class="text-muted">None noted.</li>'}</ul>
-                </div>
-                <div class="summary-modal-section mt-4">
-                    <h6><i class="bi bi-lightbulb-fill text-warning"></i> Improvement Tips</h6>
-                    <ul>${data.improvement_tips.map(item => `<li>${item}</li>`).join('') || '<li class="text-muted">None noted.</li>'}</ul>
-                </div>
-                <div class="summary-modal-section mt-4">
-                    <h6><i class="bi bi-search text-info"></i> Other Insights</h6>
-                    <ul>${data.other_factors.map(item => `<li>${item}</li>`).join('') || '<li class="text-muted">None noted.</li>'}</ul>
-                </div>
-            `;
-            contentArea.innerHTML = contentHtml;
-            contentArea.classList.remove('d-none');
+        })
+        .finally(() => {
+            loadingSpinner.classList.add('d-none');
+        });
+    }
+    function sendReport() {
+        if (!currentSummaryData) {
+            showToast('Error', 'No summary data available to send.', true);
+            return;
         }
-    })
-    .catch(err => {
-        console.error('Error fetching summary:', err);
-        errorArea.textContent = err.message;
-        errorArea.classList.remove('d-none');
-    })
-    .finally(() => {
-        loadingSpinner.classList.add('d-none');
-    });
-}
-// ... (the rest of your existing JavaScript)
+
+        const sendButton = document.getElementById('send-report-button');
+        const originalButtonText = sendButton.innerHTML;
+        sendButton.disabled = true;
+        sendButton.innerHTML = `<span class="spinner-border spinner-border-sm"></span> Sending...`;
+
+        fetch('/api/send_report', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ summary: currentSummaryData })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Success!', data.message);
+                // Use the bootstrap instance to hide the modal
+                const summaryModal = bootstrap.Modal.getInstance(document.getElementById('summaryModal'));
+                summaryModal.hide();
+            } else {
+                throw new Error(data.error || 'An unknown error occurred.');
+            }
+        })
+        .catch(err => {
+            showToast('Error', err.message, true);
+        })
+        .finally(() => {
+            // Restore the button to its original state
+            sendButton.disabled = false;
+            sendButton.innerHTML = originalButtonText;
+        });
+    }
 
   </script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
