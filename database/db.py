@@ -4,6 +4,8 @@ from pymongo.server_api import ServerApi
 from bson.objectid import ObjectId
 from dotenv import load_dotenv
 from urllib.parse import quote_plus
+from datetime import datetime, timedelta # <-- This line is the fix
+
 
 # Load environment variables from your .env file
 load_dotenv()
@@ -143,6 +145,42 @@ def delete_entries_and_tasks(user_id, entry_ids):
     # Security: Ensure the queries include the user_id
     db.tasks.delete_many({"user_id": ObjectId(user_id), "entry_id": {"$in": valid_object_ids}})
     db.entries.delete_many({"user_id": ObjectId(user_id), "_id": {"$in": valid_object_ids}})
+
+def get_entries_for_period(user_id, days=7):
+    """Fetches all journal entries for a user within the last N days."""
+    if db is None: return []
+    start_date = datetime.now() - timedelta(days=days)
+    start_date_str = start_date.strftime('%Y-%m-%d')
+    
+    return list(db.entries.find({
+        "user_id": ObjectId(user_id),
+        "date": {"$gte": start_date_str}
+    }).sort("date", 1))
+
+def save_summary_to_cache(user_id, period, summary_data):
+    """Saves a generated summary to the 'summaries' collection with a timestamp."""
+    if db is None: return
+    db.summaries.update_one(
+        {"user_id": ObjectId(user_id), "period": period},
+        {"$set": {"summary": summary_data, "created_at": datetime.utcnow()}},
+        upsert=True
+    )
+
+def get_summary_from_cache(user_id, period, max_age_hours=6):
+    """Retrieves a summary from the cache if it's not too old."""
+    if db is None: return None
+    try:
+        user_obj_id = ObjectId(user_id)
+    except Exception:
+        return None
+        
+    cached = db.summaries.find_one({"user_id": user_obj_id, "period": period})
+    
+    if cached and 'created_at' in cached:
+        cache_age = datetime.utcnow() - cached['created_at']
+        if cache_age < timedelta(hours=max_age_hours):
+            return cached.get('summary')
+    return None
 
 
 

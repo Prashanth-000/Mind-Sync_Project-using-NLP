@@ -12,7 +12,12 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
+  <!-- Bootstrap Icons (Optional, for bi-robot icon) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <style>
     :root {
@@ -175,10 +180,23 @@
   <div class="main-container">
     <!-- Left Column -->
     <div class="d-flex flex-column gap-4">
-        <header class="mb-2">
-            <h1 id="greeting">MindSync Journal</h1>
-            <p class="text-muted">Your personal space for reflection and growth.</p>
-        </header>
+        <!-- FIX: Added flexbox utilities to align items on the same line -->
+<header class="mb-2 d-flex justify-content-between align-items-center">
+    <div>
+        <h1 id="greeting">MindSync Journal</h1>
+        <p class="text-muted mb-0">Your personal space for reflection and growth.</p>
+    </div>
+    <div class="dropdown">
+        <button class="btn btn-outline-primary dropdown-toggle" type="button" id="summaryDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-robot"></i> Get AI Summary
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="summaryDropdown">
+            <li><a class="dropdown-item" href="#" onclick="getSummary('day')">Today's Summary</a></li>
+            <li><a class="dropdown-item" href="#" onclick="getSummary('week')">This Week's Summary</a></li>
+        </ul>
+    </div>
+</header>
+
 
         <!-- Journal Entry Form Card -->
         <div class="card" style="animation-delay: 0.1s;">
@@ -271,6 +289,28 @@
         </div>
     </div>
   </div>
+  <div class="modal fade" id="summaryModal" tabindex="-1" aria-labelledby="summaryModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="summaryModalLabel">Wellness Summary</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="summaryModalBody">
+        <div class="text-center" id="summary-loading">
+            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-3 text-muted">Generating your summary...</p>
+        </div>
+        <div id="summary-content" class="d-none">
+            <!-- Content will be injected here by JavaScript -->
+        </div>
+        <div id="summary-error" class="d-none alert alert-danger"></div>
+      </div>
+    </div>
+  </div>
+</div>
 
   <!-- Toast for Notifications -->
   <div class="toast-container position-fixed bottom-0 end-0 p-3">
@@ -475,8 +515,70 @@ function completeTask(taskId, taskText, buttonElement) {
             buttonElement.textContent = 'Done';
         });
     }
+    // ... (your existing JavaScript functions like showToast, submitJournal, etc.)
+
+// ADD THIS NEW FUNCTION
+function getSummary(period) {
+    const modalElement = document.getElementById('summaryModal');
+    const summaryModal = bootstrap.Modal.getOrCreateInstance(modalElement);
+
+    const loadingSpinner = document.getElementById('summary-loading');
+    const contentArea = document.getElementById('summary-content');
+    const errorArea = document.getElementById('summary-error');
+    
+    // Reset the modal to its loading state
+    loadingSpinner.classList.remove('d-none');
+    contentArea.classList.add('d-none');
+    errorArea.classList.add('d-none');
+    summaryModal.show();
+
+    fetch(`/api/get_summary/${period}`)
+    .then(res => {
+        if (!res.ok) return res.json().then(err => { throw new Error(err.error || 'An unknown error occurred.') });
+        return res.json();
+    })
+    .then(data => {
+        if (data.error) {
+            errorArea.textContent = data.error;
+            errorArea.classList.remove('d-none');
+        } else {
+            // Build the HTML for the summary content
+            let contentHtml = `
+                <div class="summary-modal-section">
+                    <h6><i class="bi bi-emoji-smile-fill text-success"></i> Positive Aspects</h6>
+                    <ul>${data.positive_aspects.map(item => `<li>${item}</li>`).join('') || '<li class="text-muted">None noted.</li>'}</ul>
+                </div>
+                <div class="summary-modal-section mt-4">
+                    <h6><i class="bi bi-emoji-frown-fill text-danger"></i> Areas for Reflection</h6>
+                    <ul>${data.negative_aspects.map(item => `<li>${item}</li>`).join('') || '<li class="text-muted">None noted.</li>'}</ul>
+                </div>
+                <div class="summary-modal-section mt-4">
+                    <h6><i class="bi bi-lightbulb-fill text-warning"></i> Improvement Tips</h6>
+                    <ul>${data.improvement_tips.map(item => `<li>${item}</li>`).join('') || '<li class="text-muted">None noted.</li>'}</ul>
+                </div>
+                <div class="summary-modal-section mt-4">
+                    <h6><i class="bi bi-search text-info"></i> Other Insights</h6>
+                    <ul>${data.other_factors.map(item => `<li>${item}</li>`).join('') || '<li class="text-muted">None noted.</li>'}</ul>
+                </div>
+            `;
+            contentArea.innerHTML = contentHtml;
+            contentArea.classList.remove('d-none');
+        }
+    })
+    .catch(err => {
+        console.error('Error fetching summary:', err);
+        errorArea.textContent = err.message;
+        errorArea.classList.remove('d-none');
+    })
+    .finally(() => {
+        loadingSpinner.classList.add('d-none');
+    });
+}
+// ... (the rest of your existing JavaScript)
 
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>
 
