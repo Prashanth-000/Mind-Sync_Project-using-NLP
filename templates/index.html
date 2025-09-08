@@ -1,641 +1,599 @@
 {% extends "layout.html" %}
 {% block content %}
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Dashboard - MindSync Journal</title>
-  
-  <!-- Professional Font & Icons -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
-  <!-- Bootstrap Icons (Optional, for bi-robot icon) -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <title>Dashboard - MindSync Journal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 </head>
 <body>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-  <style>
-    :root {
-      /* -- NEW: Colorful & Professional Palette -- */
-      --primary-color: #4f46e5;  /* Indigo */
-      --secondary-color: #ec4899; /* Pink */
-      --accent-color: #f59e0b; /* Amber */
-      --background-color: #f8fafc; /* Lighter Slate */
-      --card-bg-color: #FFFFFF;
-      --text-color: #1f2937;
-      --muted-text-color: #6b7280;
-      --border-color: #e5e7eb;
-    }
-    body {
-      background-color: var(--background-color);
-      font-family: 'Inter', sans-serif;
-      color: var(--text-color);
-      overflow-x: hidden;
-    }
-    .main-container {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 2.5rem;
-      max-width: 1300px;
-      margin: 0 auto;
-      padding: 2.5rem;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(15px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .card {
-      background-color: var(--card-bg-color);
-      border: 1px solid var(--border-color);
-      border-radius: 16px;
-      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.04);
-      height: 100%;
-      animation: fadeIn 0.6s ease-out forwards;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    .card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.07), 0 4px 6px -2px rgba(0,0,0,0.05);
-    }
-    .card-header {
-      background-color: transparent;
-      border-bottom: 1px solid var(--border-color);
-      font-weight: 600;
-      color: var(--text-color);
-      padding: 1rem 1.5rem;
-      display: flex;
-      align-items: center;
-    }
-    .card-header .bi {
-        margin-right: 0.75rem;
-        color: var(--primary-color);
-    }
-    .card-body {
-      padding: 1.5rem;
-    }
-    .btn-primary {
-      background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
-      border: none;
-      font-weight: 500;
-      padding: 0.75rem 1.5rem;
-      border-radius: 8px;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    }
-    .form-control:focus, .form-select:focus {
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 0.25rem rgba(79, 70, 229, 0.25);
-    }
-    .task-list {
-        list-style-type: none;
-        padding-left: 0;
-        margin-bottom: 0;
-    }
-    .task-item {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0.75rem 0.25rem;
-        border-bottom: 1px solid var(--border-color);
-    }
-    .task-item:last-child {
-        border-bottom: none;
-    }
-    .empty-state {
-        text-align: center;
-        padding: 2rem;
-        background-color: var(--background-color);
-        border-radius: 8px;
-    }
-    .list-group-item-action {
-        transition: background-color 0.2s ease, border-left 0.2s ease;
-        border-left: 4px solid transparent;
-    }
-    .list-group-item-action:hover {
-        background-color: #f1f5f9;
-        border-left: 4px solid var(--accent-color);
-        color: var(--primary-color);
-    }
-    .mood-indicator {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        margin-right: 12px;
-    }
-    .mood-positive { background-color: #22c55e; } /* Green */
-    .mood-neutral { background-color: var(--accent-color); } /* Amber */
-    .mood-negative { background-color: #ef4444; } /* Red */
-    #notification-toast {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        z-index: 1055;
-        border-radius: 8px;
-    }
-    .task-list-scrollable {
-  max-height: 220px; /* Adjust as needed to fit 3 tasks nicely */
-  overflow-y: auto;
-  padding-right: 8px; /* Prevent scrollbar overlap */
-}
-
-.task-list-scrollable::-webkit-scrollbar {
-  width: 6px;
-}
-
-.task-list-scrollable::-webkit-scrollbar-thumb {
-  background-color: var(--border-color);
-  border-radius: 4px;
-}
-
-.task-list-scrollable::-webkit-scrollbar-thumb:hover {
-  background-color: #cbd5e1;
-}
-
-.daily-overview-scrollable {
-  max-height: 250px; /* Adjust as needed */
-  overflow-y: auto;
-  padding-right: 8px;
-}
-
-.daily-overview-scrollable::-webkit-scrollbar {
-  width: 6px;
-}
-
-.daily-overview-scrollable::-webkit-scrollbar-thumb {
-  background-color: var(--border-color);
-  border-radius: 4px;
-}
-
-  </style>
-</head>
-<body>
-  <div class="main-container">
-    <!-- Left Column -->
-    <div class="d-flex flex-column gap-4">
-        <!-- FIX: Added flexbox utilities to align items on the same line -->
-<header class="mb-2 d-flex justify-content-between align-items-center">
-    <div>
-        <h1 id="greeting">MindSync Journal</h1>
-        <p class="text-muted mb-0">Your personal space for reflection and growth.</p>
-    </div>
-    <div class="dropdown">
-        <button class="btn btn-outline-primary dropdown-toggle" type="button" id="summaryDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="bi bi-robot"></i> Get AI Summary
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="summaryDropdown">
-            <li><a class="dropdown-item" href="#" onclick="getSummary('day')">Today's Summary</a></li>
-            <li><a class="dropdown-item" href="#" onclick="getSummary('week')">This Week's Summary</a></li>
-        </ul>
-    </div>
-</header>
-
-
-        <!-- Journal Entry Form Card -->
-        <div class="card" style="animation-delay: 0.1s;">
-            <div class="card-header"><i class="bi bi-pencil-square"></i>New Journal Entry</div>
-            <div class="card-body">
-                <textarea id="journalText" class="form-control" rows="5" placeholder="Press Enter to save (Shift+Enter for a new line)"></textarea>
-                <button class="btn btn-primary w-100 mt-3" onclick="submitJournal()">Save Entry</button>
-            </div>
-        </div>
-
-        <!-- Tasks Card -->
-        <div class="card" style="animation-delay: 0.2s;">
-            <div class="card-header"><i class="bi bi-list-check"></i>Task Management</div>
-            <div class="card-body">
-                <h6><i class="bi bi-hourglass-split me-2" style="color: var(--accent-color);"></i>Pending Tasks</h6>
-<div class="task-list task-list-scrollable mb-4">
-    {% for task in pending_tasks %}
-   <!-- THIS IS THE NEW CODE -->
-<div class="task-item" id="task-{{ task._id }}">
-    <span>{{ task.task_text }}</span>
-    <button onclick="completeTask('{{ task._id }}', '{{ task.task_text }}', this)" class="btn btn-sm btn-outline-success">Done</button>
-</div>
-    {% else %}
-    <div class="empty-state">
-        <i class="bi bi-check2-circle fs-3 text-success"></i>
-        <p class="mt-2 mb-0 text-muted">No pending tasks. Great job!</p>
-    </div>
-    {% endfor %}
-</div>
-
-
-                <h6><i class="bi bi-patch-check-fill me-2 text-success"></i>Recently Completed</h6>
-                <div class="task-list">
-                    {% for task in completed_tasks %}
-                    <div class="task-item text-muted text-decoration-line-through">
-                        <span>{{ task.task_text }} <small>- from {{ task.date }}</small></span>
-                    </div>
-                    {% else %}
-                     <div class="empty-state">
-                        <i class="bi bi-moon-stars fs-3 text-muted"></i>
-                        <p class="mt-2 mb-0 text-muted">No tasks completed recently.</p>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Right Column -->
-    <div class="d-flex flex-column gap-4">
-        <!-- Daily Overview Card -->
-        <div class="card" style="animation-delay: 0.3s;">
-            <div class="card-header"><i class="bi bi-calendar-day"></i>Daily Overview</div>
-            <div class="card-body">
-                <div class="mb-3">
-                    <label for="datePicker" class="form-label">View a Specific Day:</label>
-                    <input type="date" id="datePicker" class="form-control" onchange="goToDayView(this.value)">
-                </div>
-             <div class="daily-overview-scrollable">
-    <div class="list-group">
-        {% for day in entries_by_day %}
-        <a href="{{ url_for('day_view', date=day.date) }}" 
-           class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-            <div>
-                <span class="mood-indicator {% if day.avg_mood_score > 0.33 %}mood-positive{% elif day.avg_mood_score < -0.33 %}mood-negative{% else %}mood-neutral{% endif %}"></span>
-                <strong>{{ day.date }}</strong>
-            </div>
-            <span class="badge bg-primary-subtle text-primary-emphasis rounded-pill">{{ day.entries | length }} entries</span>
-        </a>
-        {% endfor %}
-    </div>
-</div>
-
-            </div>
-        </div>
-        
-        <!-- Trends Chart Card -->
-        <div class="card" style="animation-delay: 0.4s;">
-            <div class="card-header d-flex justify-content-between align-items:center">
-                <span><i class="bi bi-graph-up"></i>Trends</span>
-                <select id="chartPeriod" class="form-select form-select-sm w-auto" onchange="fetchChartData(this.value)">
-                    <option value="daily" selected>Daily</option>
-                    <option value="weekly">Weekly</option>
-                    <option value="monthly">Monthly</option>
-                </select>
-            </div>
-            <div class="card-body">
-                <canvas id="moodProductivityChart" height="200"></canvas>
-            </div>
-        </div>
-    </div>
-  </div>
-  
-<div class="modal fade" id="summaryModal" tabindex="-1" aria-labelledby="summaryModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="summaryModalLabel">AI Wellness Summary</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body" id="summaryModalBody">
-        <div class="text-center" id="summary-loading">
-            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-            <p class="mt-3 text-muted">Generating your summary...</p>
-        </div>
-        <div id="summary-content" class="d-none">
-            <!-- Content will be injected here by JavaScript -->
-        </div>
-        <div id="summary-error" class="d-none alert alert-danger"></div>
-      </div>
-      <!--
-        FIX: Added the modal-footer which was missing.
-        It contains the "Send Report" button and is hidden by default.
-      -->
-      <div class="modal-footer" id="summary-footer" style="display: none;">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary" id="send-report-button" onclick="sendReport()">
-              <i class="bi bi-send"></i> Send Report
-          </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-  <!-- Toast for Notifications -->
-  <div class="toast-container position-fixed bottom-0 end-0 p-3">
-    <div id="notification-toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="toast-header">
-            <strong class="me-auto" id="toast-title"></strong>
-            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
-        <div class="toast-body" id="toast-body"></div>
-    </div>
-  </div>
-
-
-  <!-- JavaScript -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        // --- DYNAMIC GREETING ---
-        const hour = new Date().getHours();
-        let greeting = "Welcome back!";
-        if (hour < 12) {
-            greeting = "Good Morning!";
-        } else if (hour < 18) {
-            greeting = "Good Afternoon!";
-        } else {
-            greeting = "Good Evening!";
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --secondary-color: #ec4899;
+            --accent-color: #f59e0b;
+            --background-color: #f8fafc;
+            --card-bg-color: #FFFFFF;
+            --text-color: #1f2937;
+            --muted-text-color: #6b7280;
+            --border-color: #e5e7eb;
         }
-        document.getElementById('greeting').textContent = greeting;
-
-        // --- UPDATED: SUBMIT JOURNAL ON ENTER ---
-        const journalInput = document.getElementById('journalText');
-        journalInput.addEventListener('keydown', (event) => {
-            // Submit on Enter, but allow new lines with Shift+Enter
-            if (event.key === 'Enter' && !event.shiftKey) {
-                event.preventDefault(); // Prevents adding a new line
-                submitJournal();
+        body {
+            background-color: var(--background-color);
+            font-family: 'Inter', sans-serif;
+            color: var(--text-color);
+            overflow-x: hidden;
+        }
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2.5rem;
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 2.5rem;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
             }
-        });
-
-        // Initial chart load
-        fetchChartData('daily');
-    });
-    
-    const toastEl = document.getElementById('notification-toast');
-    const toast = new bootstrap.Toast(toastEl);
-
-    function showToast(title, body, isError = false) {
-        document.getElementById('toast-title').textContent = title;
-        document.getElementById('toast-body').textContent = body;
-        const toastHeader = toastEl.querySelector('.toast-header');
-        if (isError) {
-            toastHeader.classList.add('bg-danger', 'text-white');
-            toastHeader.classList.remove('bg-success');
-        } else {
-            toastHeader.classList.add('bg-success', 'text-white');
-            toastHeader.classList.remove('bg-danger');
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-        toast.show();
-    }
-
-    function submitJournal() {
-      const text = document.getElementById("journalText").value.trim();
-      if (!text) {
-          showToast('Error', 'Journal entry cannot be empty.', true);
-          return;
-      }
-
-      fetch("/submit_journal_ajax", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ journal: text })
-      })
-      .then(res => {
-          if (!res.ok) throw new Error('Network response was not ok');
-          return res.json();
-      })
-      .then(data => {
-        showToast('Success!', 'Your journal entry has been saved.');
-        setTimeout(() => location.reload(), 1500); // Reload after showing toast
-      })
-      .catch(err => {
-        console.error(err);
-        showToast('Error', 'Failed to save entry. Please try again.', true);
-      });
-    }
-
-    function goToDayView(date) {
-        if(date) {
-            window.location.href = `/day_view/${date}`;
+        .card {
+            background-color: var(--card-bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+            height: 100%;
+            animation: fadeIn 0.6s ease-out forwards;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-    }
-
-    // Chart.js Logic with new colors
-    const ctx = document.getElementById('moodProductivityChart').getContext('2d');
-    let chart;
-
-    function fetchChartData(period = 'daily') {
-      fetch(`/api/chart_data/${period}`)
-        .then(res => res.json())
-        .then(data => {
-          const labels = data.map(d => d.label).reverse();
-          const mood = data.map(d => d.mood).reverse();
-          const productivity = data.map(d => d.productivity).reverse();
-
-          if (chart) chart.destroy();
-
-          chart = new Chart(ctx, {
-            type: 'line',
-            data: {
-              labels: labels,
-              datasets: [
-                {
-                  label: 'Mood Trend',
-                  data: mood,
-                  borderColor: 'var(--primary-color)',
-                  backgroundColor: 'rgba(79, 70, 229, 0.1)',
-                  fill: true,
-                  tension: 0.4,
-                  pointBackgroundColor: '#fff',
-                  pointBorderColor: 'var(--primary-color)',
-                  pointHoverRadius: 7
-                },
-                {
-                  label: 'Productivity Trend',
-                  data: productivity,
-                  borderColor: 'var(--secondary-color)',
-                  backgroundColor: 'rgba(236, 72, 153, 0.1)',
-                  fill: true,
-                  tension: 0.4,
-                  pointBackgroundColor: '#fff',
-                  pointBorderColor: 'var(--secondary-color)',
-                  pointHoverRadius: 7
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .card-header {
+            background-color: transparent;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
+            color: var(--text-color);
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+        .card-header .bi {
+            margin-right: 0.75rem;
+            color: var(--primary-color);
+        }
+        .card-body {
+            padding: 1.5rem;
+        }
+        .btn-primary {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            font-weight: 500;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(79, 70, 229, 0.25);
+        }
+        .task-list {
+            list-style-type: none;
+            padding-left: 0;
+            margin-bottom: 0;
+        }
+        .task-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 0.25rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .task-item:last-child {
+            border-bottom: none;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            background-color: var(--background-color);
+            border-radius: 8px;
+        }
+        .list-group-item-action {
+            transition: background-color 0.2s ease, border-left 0.2s ease;
+            border-left: 4px solid transparent;
+        }
+        .list-group-item-action:hover {
+            background-color: #f1f5f9;
+            border-left: 4px solid var(--accent-color);
+            color: var(--primary-color);
+        }
+        .mood-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 12px;
+        }
+        .mood-positive {
+            background-color: #22c55e;
+        }
+        .mood-neutral {
+            background-color: var(--accent-color);
+        }
+        .mood-negative {
+            background-color: #ef4444;
+        }
+        #notification-toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1055;
+            border-radius: 8px;
+        }
+        .task-list-scrollable {
+            max-height: 220px;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+        .task-list-scrollable::-webkit-scrollbar {
+            width: 6px;
+        }
+        .task-list-scrollable::-webkit-scrollbar-thumb {
+            background-color: var(--border-color);
+            border-radius: 4px;
+        }
+        .task-list-scrollable::-webkit-scrollbar-thumb:hover {
+            background-color: #cbd5e1;
+        }
+        .daily-overview-scrollable {
+            max-height: 250px;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+        .daily-overview-scrollable::-webkit-scrollbar {
+            width: 6px;
+        }
+        .daily-overview-scrollable::-webkit-scrollbar-thumb {
+            background-color: var(--border-color);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="d-flex flex-column gap-4">
+            <header class="mb-2 d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 id="greeting">MindSync Journal</h1>
+                    <p class="text-muted mb-0">Your personal space for reflection and growth.</p>
+                </div>
+                <div class="dropdown">
+                    <button class="btn btn-outline-primary dropdown-toggle" type="button" id="summaryDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-robot"></i> Get Summary
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="summaryDropdown">
+                        <li><a class="dropdown-item" href="#" onclick="getSummary('day')">Recent Summary</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="getSummary('week')">This Week's Summary</a></li>
+                    </ul>
+                </div>
+            </header>
+            <div class="card" style="animation-delay: 0.1s;">
+                <div class="card-header"><i class="bi bi-pencil-square"></i>New Journal Entry</div>
+                <div class="card-body">
+                    <textarea id="journalText" class="form-control" rows="5" placeholder="Press Enter to save (Shift+Enter for a new line)"></textarea>
+                    <button class="btn btn-primary w-100 mt-3" onclick="submitJournal()">Save Entry</button>
+                </div>
+            </div>
+            <div class="card" style="animation-delay: 0.2s;">
+                <div class="card-header"><i class="bi bi-list-check"></i>Task Management</div>
+                <div class="card-body">
+                    <h6><i class="bi bi-hourglass-split me-2" style="color: var(--accent-color);"></i>Pending Tasks</h6>
+                    <div class="task-list task-list-scrollable mb-4">
+                        {% for task in pending_tasks %}
+                        <div class="task-item" id="task-{{ task._id }}">
+                            <span>{{ task.task_text }}</span>
+                            <button onclick="completeTask('{{ task._id }}', '{{ task.task_text }}', this)" class="btn btn-sm btn-outline-success">Done</button>
+                        </div>
+                        {% else %}
+                        <div class="empty-state">
+                            <i class="bi bi-check2-circle fs-3 text-success"></i>
+                            <p class="mt-2 mb-0 text-muted">No pending tasks. Great job!</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <h6><i class="bi bi-patch-check-fill me-2 text-success"></i>Recently Completed</h6>
+                    <div class="task-list">
+                        {% for task in completed_tasks %}
+                        <div class="task-item text-muted text-decoration-line-through">
+                            <span>{{ task.task_text }} <small>- from {{ task.date }}</small></span>
+                        </div>
+                        {% else %}
+                        <div class="empty-state">
+                            <i class="bi bi-moon-stars fs-3 text-muted"></i>
+                            <p class="mt-2 mb-0 text-muted">No tasks completed recently.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="d-flex flex-column gap-4">
+            <div class="card" style="animation-delay: 0.3s;">
+                <div class="card-header"><i class="bi bi-calendar-day"></i>Daily Overview</div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="datePicker" class="form-label">View a Specific Day:</label>
+                        <input type="date" id="datePicker" class="form-control" onchange="goToDayView(this.value)">
+                    </div>
+                    <div class="daily-overview-scrollable">
+                        <div class="list-group">
+                            {% for day in entries_by_day %}
+                            <a href="{{ url_for('day_view', date=day.date) }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="mood-indicator {% if day.avg_mood_score > 0.33 %}mood-positive{% elif day.avg_mood_score < -0.33 %}mood-negative{% else %}mood-neutral{% endif %}"></span>
+                                    <strong>{{ day.date }}</strong>
+                                </div>
+                                <span class="badge bg-primary-subtle text-primary-emphasis rounded-pill">{{ day.entries | length }} entries</span>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card" style="animation-delay: 0.4s;">
+                <div class="card-header d-flex justify-content-between align-items:center">
+                    <span><i class="bi bi-graph-up"></i>Trends</span>
+                    <select id="chartPeriod" class="form-select form-select-sm w-auto" onchange="fetchChartData(this.value)">
+                        <option value="daily" selected>Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                    </select>
+                </div>
+                <div class="card-body">
+                    <canvas id="moodProductivityChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="summaryModal" tabindex="-1" aria-labelledby="summaryModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="summaryModalLabel">AI Wellness Summary</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="summaryModalBody">
+                    <div class="text-center" id="summary-loading">
+                        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-3 text-muted">Generating your summary...</p>
+                    </div>
+                    <div id="summary-content" class="d-none">
+                    </div>
+                    <div id="summary-error" class="d-none alert alert-danger"></div>
+                </div>
+                <div class="modal-footer" id="summary-footer" style="display: none;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="send-report-button" onclick="sendReport()">
+                        <i class="bi bi-send"></i> Send Report
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="notification-toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <strong class="me-auto" id="toast-title"></strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body" id="toast-body"></div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const hour = new Date().getHours();
+            let greeting = "Welcome back!";
+            if (hour < 12) {
+                greeting = "Good Morning!";
+            } else if (hour < 18) {
+                greeting = "Good Afternoon!";
+            } else {
+                greeting = "Good Evening!";
+            }
+            document.getElementById('greeting').textContent = greeting;
+            const journalInput = document.getElementById('journalText');
+            journalInput.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' && !event.shiftKey) {
+                    event.preventDefault();
+                    submitJournal();
                 }
-              ]
-            },
-            options: {
-              responsive: true,
-              maintainAspectRatio: false,
-              scales: { 
-                y: { beginAtZero: false, grid: { color: '#e9ecef' } },
-                x: { grid: { display: false } }
-              },
-              plugins: { 
-                legend: { display: true, position: 'top', align: 'end' }
-              },
-              interaction: {
-                  mode: 'index',
-                  intersect: false
-              }
-            }
-          });
+            });
+            fetchChartData('daily');
         });
-    }
+        const toastEl = document.getElementById('notification-toast');
+        const toast = new bootstrap.Toast(toastEl);
 
-// Add this new function to your <script> tag at the bottom of index.html
-function completeTask(taskId, taskText, buttonElement) {
-        buttonElement.disabled = true;
-        buttonElement.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>`;
+        function showToast(title, body, isError = false) {
+            document.getElementById('toast-title').textContent = title;
+            document.getElementById('toast-body').textContent = body;
+            const toastHeader = toastEl.querySelector('.toast-header');
+            if (isError) {
+                toastHeader.classList.add('bg-danger', 'text-white');
+                toastHeader.classList.remove('bg-success');
+            } else {
+                toastHeader.classList.add('bg-success', 'text-white');
+                toastHeader.classList.remove('bg-danger');
+            }
+            toast.show();
+        }
 
-        fetch(`/complete_task/${taskId}`, { method: "POST" })
-        .then(res => {
-            if (!res.ok) throw new Error('Failed to update task.');
-            return res.json();
-        })
-        .then(data => {
-            if (data.success) {
-                const taskElement = document.getElementById(`task-${taskId}`);
-                if(taskElement) {
-                    taskElement.style.transition = 'opacity 0.5s ease';
-                    taskElement.style.opacity = '0';
-                    setTimeout(() => {
-                        taskElement.remove();
-                        const pendingList = document.getElementById('pending-tasks-list');
-                        // FIX: Check if the element exists before trying to access its properties
-                        if (pendingList && !pendingList.querySelector('.task-item')) {
-                            const noPendingTasksMsg = document.getElementById('no-pending-tasks');
-                            if (noPendingTasksMsg) noPendingTasksMsg.style.display = 'block';
+        function submitJournal() {
+            const text = document.getElementById("journalText").value.trim();
+            if (!text) {
+                showToast('Error', 'Journal entry cannot be empty.', true);
+                return;
+            }
+            fetch("/submit_journal_ajax", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        journal: text
+                    })
+                })
+                .then(res => {
+                    if (!res.ok) throw new Error('Network response was not ok');
+                    return res.json();
+                })
+                .then(data => {
+                    showToast('Success!', 'Your journal entry has been saved.');
+                    setTimeout(() => location.reload(), 1500);
+                })
+                .catch(err => {
+                    console.error(err);
+                    showToast('Error', 'Failed to save entry. Please try again.', true);
+                });
+        }
+
+        function goToDayView(date) {
+            if (date) {
+                window.location.href = `/day_view/${date}`;
+            }
+        }
+        const ctx = document.getElementById('moodProductivityChart').getContext('2d');
+        let chart;
+
+        function fetchChartData(period = 'daily') {
+            fetch(`/api/chart_data/${period}`)
+                .then(res => res.json())
+                .then(data => {
+                    const labels = data.map(d => d.label).reverse();
+                    const mood = data.map(d => d.mood).reverse();
+                    const productivity = data.map(d => d.productivity).reverse();
+                    if (chart) chart.destroy();
+                    chart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Mood Trend',
+                                data: mood,
+                                borderColor: 'var(--primary-color)',
+                                backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                                fill: true,
+                                tension: 0.4,
+                                pointBackgroundColor: '#fff',
+                                pointBorderColor: 'var(--primary-color)',
+                                pointHoverRadius: 7
+                            }, {
+                                label: 'Productivity Trend',
+                                data: productivity,
+                                borderColor: 'var(--secondary-color)',
+                                backgroundColor: 'rgba(236, 72, 153, 0.1)',
+                                fill: true,
+                                tension: 0.4,
+                                pointBackgroundColor: '#fff',
+                                pointBorderColor: 'var(--secondary-color)',
+                                pointHoverRadius: 7
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: false,
+                                    grid: {
+                                        color: '#e9ecef'
+                                    }
+                                },
+                                x: {
+                                    grid: {
+                                        display: false
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    display: true,
+                                    position: 'top',
+                                    align: 'end'
+                                }
+                            },
+                            interaction: {
+                                mode: 'index',
+                                intersect: false
+                            }
                         }
-                    }, 500);
-                }
-
-                const completedList = document.getElementById('completed-tasks-list');
-                const noCompletedTasksMsg = document.getElementById('no-completed-tasks');
-                // FIX: Check if the element exists before trying to access its properties
-                if (noCompletedTasksMsg) noCompletedTasksMsg.style.display = 'none';
-
-                const newCompletedTask = document.createElement('div');
-                newCompletedTask.className = 'task-item text-muted text-decoration-line-through';
-                newCompletedTask.innerHTML = `<span>${taskText} <small>- just now</small></span>`;
-                if(completedList) completedList.prepend(newCompletedTask);
-                
-                showToast('Task Completed!', `"${taskText}"`);
-            } else {
-                throw new Error(data.message || 'Server returned an error.');
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            showToast('Error', 'Could not complete task.', true);
-            buttonElement.disabled = false;
-            buttonElement.textContent = 'Done';
-        });
-    }
-    // ... (your existing JavaScript functions like showToast, submitJournal, etc.)
-
-// ADD THIS NEW FUNCTION
-let currentSummaryData = null;
-
-    // --- CORRECTED FUNCTION ---
-    function getSummary(period) {
-        const modalElement = document.getElementById('summaryModal');
-        const summaryModal = bootstrap.Modal.getOrCreateInstance(modalElement);
-
-        const loadingSpinner = document.getElementById('summary-loading');
-        const contentArea = document.getElementById('summary-content');
-        const errorArea = document.getElementById('summary-error');
-        const footer = document.getElementById('summary-footer');
-        
-        // Reset the modal to its loading state
-        loadingSpinner.classList.remove('d-none');
-        contentArea.classList.add('d-none');
-        errorArea.classList.add('d-none');
-        footer.style.display = 'none'; // FIX: Hide footer initially
-        currentSummaryData = null; // FIX: Clear old summary data
-        summaryModal.show();
-
-        fetch(`/api/get_summary/${period}`)
-        .then(res => {
-            if (!res.ok) return res.json().then(err => { throw new Error(err.error || 'An unknown error occurred.') });
-            return res.json();
-        })
-        .then(data => {
-            if (data.error) {
-                errorArea.textContent = data.error;
-                errorArea.classList.remove('d-none');
-            } else {
-                // Build the HTML for the summary content
-                let contentHtml = `
-                    <div class="summary-modal-section">
-                        <h6><i class="bi bi-emoji-smile-fill text-success"></i> Positive Aspects</h6>
-                        <ul>${data.positive_aspects.map(item => `<li>${item}</li>`).join('') || '<li class="text-muted">None noted.</li>'}</ul>
-                    </div>
-                    <div class="summary-modal-section mt-4">
-                        <h6><i class="bi bi-emoji-frown-fill text-danger"></i> Areas for Reflection</h6>
-                        <ul>${data.negative_aspects.map(item => `<li>${item}</li>`).join('') || '<li class="text-muted">None noted.</li>'}</ul>
-                    </div>
-                    <div class="summary-modal-section mt-4">
-                        <h6><i class="bi bi-lightbulb-fill text-warning"></i> Improvement Tips</h6>
-                        <ul>${data.improvement_tips.map(item => `<li>${item}</li>`).join('') || '<li class="text-muted">None noted.</li>'}</ul>
-                    </div>
-                    <div class="summary-modal-section mt-4">
-                        <h6><i class="bi bi-search text-info"></i> Other Insights</h6>
-                        <ul>${data.other_factors.map(item => `<li>${item}</li>`).join('') || '<li class="text-muted">None noted.</li>'}</ul>
-                    </div>
-                `;
-                contentArea.innerHTML = contentHtml;
-                contentArea.classList.remove('d-none');
-
-                // --- FIX: Store data and show the footer ---
-                currentSummaryData = data; // Store the successful response
-                footer.style.display = 'flex'; // Show the footer with the send button
-            }
-        })
-        .catch(err => {
-            console.error('Error fetching summary:', err);
-            errorArea.textContent = err.message;
-            errorArea.classList.remove('d-none');
-        })
-        .finally(() => {
-            loadingSpinner.classList.add('d-none');
-        });
-    }
-    function sendReport() {
-        if (!currentSummaryData) {
-            showToast('Error', 'No summary data available to send.', true);
-            return;
+                    });
+                });
         }
 
-        const sendButton = document.getElementById('send-report-button');
-        const originalButtonText = sendButton.innerHTML;
-        sendButton.disabled = true;
-        sendButton.innerHTML = `<span class="spinner-border spinner-border-sm"></span> Sending...`;
+        function completeTask(taskId, taskText, buttonElement) {
+            buttonElement.disabled = true;
+            buttonElement.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>`;
+            fetch(`/complete_task/${taskId}`, {
+                    method: "POST"
+                })
+                .then(res => {
+                    if (!res.ok) throw new Error('Failed to update task.');
+                    return res.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        const taskElement = document.getElementById(`task-${taskId}`);
+                        if (taskElement) {
+                            taskElement.style.transition = 'opacity 0.5s ease';
+                            taskElement.style.opacity = '0';
+                            setTimeout(() => {
+                                taskElement.remove();
+                                const pendingList = document.getElementById('pending-tasks-list');
+                                if (pendingList && !pendingList.querySelector('.task-item')) {
+                                    const noPendingTasksMsg = document.getElementById('no-pending-tasks');
+                                    if (noPendingTasksMsg) noPendingTasksMsg.style.display = 'block';
+                                }
+                            }, 500);
+                        }
+                        const completedList = document.getElementById('completed-tasks-list');
+                        const noCompletedTasksMsg = document.getElementById('no-completed-tasks');
+                        if (noCompletedTasksMsg) noCompletedTasksMsg.style.display = 'none';
+                        const newCompletedTask = document.createElement('div');
+                        newCompletedTask.className = 'task-item text-muted text-decoration-line-through';
+                        newCompletedTask.innerHTML = `<span>${taskText} <small>- just now</small></span>`;
+                        if (completedList) completedList.prepend(newCompletedTask);
+                        showToast('Task Completed!', `"${taskText}"`);
+                    } else {
+                        throw new Error(data.message || 'Server returned an error.');
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    showToast('Error', 'Could not complete task.', true);
+                    buttonElement.disabled = false;
+                    buttonElement.textContent = 'Done';
+                });
+        }
+        let currentSummaryData = null;
 
-        fetch('/api/send_report', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ summary: currentSummaryData })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                showToast('Success!', data.message);
-                // Use the bootstrap instance to hide the modal
-                const summaryModal = bootstrap.Modal.getInstance(document.getElementById('summaryModal'));
-                summaryModal.hide();
-            } else {
-                throw new Error(data.error || 'An unknown error occurred.');
+        function getSummary(period) {
+            const modalElement = document.getElementById('summaryModal');
+            const summaryModal = bootstrap.Modal.getOrCreateInstance(modalElement);
+            const loadingSpinner = document.getElementById('summary-loading');
+            const contentArea = document.getElementById('summary-content');
+            const errorArea = document.getElementById('summary-error');
+            const footer = document.getElementById('summary-footer');
+            loadingSpinner.classList.remove('d-none');
+            contentArea.classList.add('d-none');
+            errorArea.classList.add('d-none');
+            footer.style.display = 'none';
+            currentSummaryData = null;
+            summaryModal.show();
+            fetch(`/api/get_summary/${period}`)
+                .then(res => {
+                    if (!res.ok) return res.json().then(err => {
+                        throw new Error(err.error || 'An unknown error occurred.')
+                    });
+                    return res.json();
+                })
+                .then(data => {
+                    if (data.error) {
+                        errorArea.textContent = data.error;
+                        errorArea.classList.remove('d-none');
+                    } else {
+                        let contentHtml = `
+                                <div class="summary-modal-section">
+                                    <h6><i class="bi bi-emoji-smile-fill text-success"></i> Positive Aspects</h6>
+                                    <ul>${data.positive_aspects.map(item => `<li>${item}</li>`).join('') || '<li class="text-muted">None noted.</li>'}</ul>
+                                </div>
+                                <div class="summary-modal-section mt-4">
+                                    <h6><i class="bi bi-emoji-frown-fill text-danger"></i> Areas for Reflection</h6>
+                                    <ul>${data.negative_aspects.map(item => `<li>${item}</li>`).join('') || '<li class="text-muted">None noted.</li>'}</ul>
+                                </div>
+                                <div class="summary-modal-section mt-4">
+                                    <h6><i class="bi bi-lightbulb-fill text-warning"></i> Improvement Tips</h6>
+                                    <ul>${data.improvement_tips.map(item => `<li>${item}</li>`).join('') || '<li class="text-muted">None noted.</li>'}</ul>
+                                </div>
+                                <div class="summary-modal-section mt-4">
+                                    <h6><i class="bi bi-search text-info"></i> Other Insights</h6>
+                                    <ul>${data.other_factors.map(item => `<li>${item}</li>`).join('') || '<li class="text-muted">None noted.</li>'}</ul>
+                                </div>
+                            `;
+                        contentArea.innerHTML = contentHtml;
+                        contentArea.classList.remove('d-none');
+                        currentSummaryData = data;
+                        footer.style.display = 'flex';
+                    }
+                })
+                .catch(err => {
+                    console.error('Error fetching summary:', err);
+                    errorArea.textContent = err.message;
+                    errorArea.classList.remove('d-none');
+                })
+                .finally(() => {
+                    loadingSpinner.classList.add('d-none');
+                });
+        }
+
+        function sendReport() {
+            if (!currentSummaryData) {
+                showToast('Error', 'No summary data available to send.', true);
+                return;
             }
-        })
-        .catch(err => {
-            showToast('Error', err.message, true);
-        })
-        .finally(() => {
-            // Restore the button to its original state
-            sendButton.disabled = false;
-            sendButton.innerHTML = originalButtonText;
-        });
-    }
-
-  </script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
+            const sendButton = document.getElementById('send-report-button');
+            const originalButtonText = sendButton.innerHTML;
+            sendButton.disabled = true;
+            sendButton.innerHTML = `<span class="spinner-border spinner-border-sm"></span> Sending...`;
+            fetch('/api/send_report', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        summary: currentSummaryData
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast('Success!', data.message);
+                        const summaryModal = bootstrap.Modal.getInstance(document.getElementById('summaryModal'));
+                        summaryModal.hide();
+                    } else {
+                        throw new Error(data.error || 'An unknown error occurred.');
+                    }
+                })
+                .catch(err => {
+                    showToast('Error', err.message, true);
+                })
+                .finally(() => {
+                    sendButton.disabled = false;
+                    sendButton.innerHTML = originalButtonText;
+                });
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-
 {% endblock content %}

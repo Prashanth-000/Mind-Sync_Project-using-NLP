@@ -2,8 +2,6 @@ from textblob import TextBlob
 import nltk
 from nltk.sentiment import SentimentIntensityAnalyzer
 
-# Note: The first time you run the app, this will download the necessary model.
-# In a production environment, this would typically be part of a setup script.
 try:
     nltk.data.find('sentiment/vader_lexicon.zip')
 except nltk.downloader.DownloadError:
