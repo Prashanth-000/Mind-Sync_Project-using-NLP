@@ -10,6 +10,10 @@ from nlp.scorer import custom_productivity_score
 from flask_mail import Mail, Message
 from nlp.summarizer import generate_rule_based_summary
 from database.db import get_entries_for_period
+import threading
+from werkzeug.utils import secure_filename
+from nlp.media_analyzer import transcribe_audio_local
+
 
 app = Flask(__name__)
 
@@ -262,5 +266,74 @@ def get_summary(period):
         
     return jsonify(summary_data)
 
+# This is the helper function that will run in the background
+def run_audio_analysis_background(file_path, user_id):
+    """A wrapper function to run the full audio analysis pipeline in a background thread."""
+    print(f"BACKGROUND THREAD: Starting audio analysis for {file_path}")
+    
+    # 1. Transcribe the audio to text
+    transcribed_text = transcribe_audio_local(file_path)
+    
+    if transcribed_text:
+        # 2. Run your EXISTING NLP analysis on the transcribed text
+        analysis = analyze_text(transcribed_text)
+        tasks = extract_tasks(transcribed_text)
+        
+        # 3. Create a new journal entry in the database with the results
+        # This makes the audio entry appear just like a written one
+        add_entry(
+            user_id,
+            datetime.now().strftime('%Y-%m-%d'),
+            f"(Audio Journal Entry)\n\n{transcribed_text}", # Mark it as an audio entry
+            analysis['mood'],
+            custom_productivity_score(transcribed_text) # Use your existing scorer
+        )
+        
+        # Optional: You could add the extracted tasks to the database as well.
+        print(f"--- BACKGROUND ANALYSIS COMPLETE (for User {user_id}) ---")
+        print(f"  > Mood: {analysis['mood']}, Tasks: {len(tasks)}")
+    else:
+        print(f"--- BACKGROUND ANALYSIS FAILED: No text transcribed. ---")
+
+    os.remove(file_path)
+
+@app.route("/api/analyze_audio", methods=['POST'])
+@login_required
+def analyze_audio():
+    if 'audio_file' not in request.files:
+        return jsonify({"error": "No file part"}), 400
+    
+    file = request.files['audio_file']
+    if file.filename == '':
+        return jsonify({"error": "No selected file"}), 400
+
+    # Only allow WAV files
+    if not file.filename.lower().endswith(".wav"):
+        return jsonify({"error": "Only WAV files are supported"}), 400
+
+    filename = secure_filename(file.filename)
+    temp_dir = os.path.join(app.root_path, 'temp_uploads')
+    os.makedirs(temp_dir, exist_ok=True)
+
+    temp_file_path = os.path.abspath(os.path.join(temp_dir, filename))
+    file.save(temp_file_path)
+
+    print(f"File saved at: {temp_file_path}, exists? {os.path.exists(temp_file_path)}")
+
+    if not app.debug or os.environ.get("WERKZEUG_RUN_MAIN") == "true":
+        import threading
+        threading.Thread(
+            target=run_audio_analysis_background,
+            args=(temp_file_path, current_user.get_id()),
+            daemon=True
+        ).start()
+    else:
+        run_audio_analysis_background(temp_file_path, current_user.get_id())
+
+    return jsonify({
+        "message": "Audio file has been successfully analyzed and saved as a new journal entry."
+    }), 200
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, use_reloader=False)
+

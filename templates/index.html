@@ -201,6 +201,16 @@
                     <button class="btn btn-primary w-100 mt-3" onclick="submitJournal()">Save Entry</button>
                 </div>
             </div>
+            <div class="card" style="animation-delay: 0.3s;">
+                <div class="card-header"><i class="bi bi-mic-fill"></i> Audio Journal </div>
+                <div class="card-body">
+                    <p class="text-muted small">Upload a short audio entry. It will be analyzed and saved as a new journal entry.</p>
+                    <div class="input-group">
+                        <input type="file" class="form-control" id="audio-upload-input" accept=".wav,.mp3,.m4a">
+                        <button class="btn btn-outline-secondary" type="button" id="upload-audio-button" onclick="uploadAndAnalyzeAudio()">Analyze Audio</button>
+                    </div>
+                </div>
+            </div>
             <div class="card" style="animation-delay: 0.2s;">
                 <div class="card-header"><i class="bi bi-list-check"></i>Task Management</div>
                 <div class="card-body">
@@ -592,6 +602,70 @@
                     sendButton.innerHTML = originalButtonText;
                 });
         }
+        function uploadAndAnalyzeAudio() {
+        const fileInput = document.getElementById('audio-upload-input');
+        const file = fileInput.files[0];
+
+        if (!file) {
+            showToast('Error', 'Please select an audio file to analyze.', true);
+            return;
+        }
+
+        const uploadButton = fileInput.nextElementSibling;
+        uploadButton.disabled = true;
+        uploadButton.innerHTML = `<span class="spinner-border spinner-border-sm"></span> Uploading...`;
+
+        const formData = new FormData();
+        formData.append('audio_file', file);
+
+        fetch('/api/analyze_audio', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => {
+            // Accept any 2xx status as success
+            if (res.ok) {
+                return res.json();
+            } else {
+                return res.json().then(err => { throw new Error(err.error || 'Unknown server error'); });
+            }
+        })
+        .then(data => {
+            // Show success message from server
+            const msg = data.message || 'Audio analysis started successfully!';
+            showToast('Analysis Started', msg);
+
+            // Clear file input for next upload
+            fileInput.value = '';
+        })
+        .catch(err => {
+            console.error('Error uploading audio:', err);
+            showToast('Upload Error', `An error occurred: ${err.message}`, true);
+        })
+        .finally(() => {
+            // Re-enable the button
+            uploadButton.disabled = false;
+            uploadButton.textContent = 'Analyze Audio';
+        });
+    }
+
+// Example toast function
+    function showToast(title, message, isError = false) {
+        const toast = document.createElement('div');
+        toast.textContent = `${title}: ${message}`;
+        toast.style.position = 'fixed';
+        toast.style.bottom = '20px';
+        toast.style.right = '20px';
+        toast.style.background = isError ? 'rgba(220, 53, 69, 0.9)' : 'rgba(40, 167, 69, 0.9)';
+        toast.style.color = 'white';
+        toast.style.padding = '10px 20px';
+        toast.style.borderRadius = '5px';
+        toast.style.zIndex = 1000;
+        toast.style.boxShadow = '0 2px 6px rgba(0,0,0,0.3)';
+        document.body.appendChild(toast);
+
+        setTimeout(() => toast.remove(), 5000); // auto-remove after 3s
+    }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>

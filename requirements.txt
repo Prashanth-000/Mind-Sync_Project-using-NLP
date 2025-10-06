@@ -7,3 +7,4 @@ textblob
 nltk
 google-generativeai
 Flask-Mail
+openai-whisper
