@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Your Personal Insights</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <!-- Added Google Font: Inter to match the main page -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* --- START: Copied styles from index.html for consistency --- */
+    :root {
+      --bg-color: #f4f7f9;
+      --card-bg-color: #ffffff;
+      --primary-color: #6c63ff;
+      --primary-hover-color: #574fdb;
+      --secondary-color: #f0f2f5;
+      --text-color: #333;
+      --subtle-text-color: #888;
+      --border-color: #e8eaf0;
+      --shadow-color: rgba(108, 99, 255, 0.1);
+      --font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      padding: 2rem;
+      background-color: var(--bg-color);
+      font-family: var(--font-family);
+      color: var(--text-color);
+    }
+    
+    .main-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+
+    .main-header h1 {
+        font-weight: 700;
+        color: var(--primary-color);
+    }
+
+    .main-header p {
+        color: var(--subtle-text-color);
+        font-size: 1.1rem;
+    }
+    
+    .container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .card-style {
+      background-color: var(--card-bg-color);
+      padding: 1.5rem;
+      border-radius: 16px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 10px 25px -5px var(--shadow-color);
+      margin-bottom: 1.5rem;
+    }
+    
+    .card-header { 
+        font-size: 1.25rem; 
+        font-weight: 600; 
+        background-color: transparent;
+        border-bottom: 1px solid var(--border-color);
+        padding-left: 0;
+        padding-right: 0;
+    }
+    
+    .btn-secondary {
+        background-color: var(--secondary-color);
+        border-color: var(--border-color);
+        color: var(--text-color);
+        font-weight: 600;
+    }
+    /* --- END: Copied styles --- */
+  </style>
+</head>
+<body>
+  <!-- Added main header for consistency -->
+  <div class="main-header">
+    <h1><i class="bi bi-search"></i> Your {{ period.capitalize() }} Insights</h1>
+    <p>Patterns and themes discovered in your recent journal entries.</p>
+  </div>
+
+  <div class="container">
+    {% if insights %}
+      {% for insight in insights %}
+      <!-- Using the new .card-style class -->
+      <div class="card-style">
+        <div class="card-header">
+          Topic: {{ insight.topic.capitalize() }}
+        </div>
+        <div class="card-body px-0 pb-0">
+            <p class="card-text">
+                This topic was mentioned <strong>{{ insight.count }}</strong> times. Here's the breakdown of its impact:
+            </p>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item d-flex justify-content-between align-items-center px-1">
+                    <div>
+                        <i class="bi bi-emoji-smile-fill text-success" style="font-size: 1.2rem; vertical-align: middle;"></i>
+                        <span class="ms-2">Average Mood</span>
+                    </div>
+                    
+                    {% if insight.avg_mood > 0.2 %}
+                        <span class="badge bg-success-subtle text-success-emphasis rounded-pill fs-6">{{ "%.2f"|format(insight.avg_mood) }}</span>
+                    {% elif insight.avg_mood < -0.2 %}
+                        <span class="badge bg-danger-subtle text-danger-emphasis rounded-pill fs-6">{{ "%.2f"|format(insight.avg_mood) }}</span>
+                    {% else %}
+                        <span class="badge bg-secondary-subtle text-secondary-emphasis rounded-pill fs-6">{{ "%.2f"|format(insight.avg_mood) }}</span>
+                    {% endif %}
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center px-1">
+                    <div>
+                        <i class="bi bi-graph-up-arrow text-primary" style="font-size: 1.2rem; vertical-align: middle;"></i>
+                        <span class="ms-2">Average Productivity</span>
+                    </div>
+                    <span class="badge bg-primary-subtle text-primary-emphasis rounded-pill fs-6">{{ "%.2f"|format(insight.avg_prod) }}</span>
+                </li>
+            </ul>
+        </div>
+      </div>
+      {% endfor %}
+
+    {% else %}
+      <!-- Matched the card style for the alert -->
+      <div class="card-style text-center">
+          <h5 class="text-muted">No Significant Patterns Found</h5>
+          <p class="text-muted mb-0">There aren't enough repeated topics in your recent entries to generate insights. Keep journaling to discover more about yourself!</p>
+      </div>
+    {% endif %}
+
+    <div class="text-center">
+        <a href="/" class="btn btn-secondary mt-3">Back to Dashboard</a>
+    </div>
+  </div>
+</body>
+</html>

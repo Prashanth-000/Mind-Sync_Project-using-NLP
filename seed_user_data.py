@@ -8,9 +8,6 @@ from dotenv import load_dotenv
 from database.db import init_db, add_entry, add_task, find_user_by_email
 from models import User
 
-# --- Configuration for the Test User ---
-TEST_USER_EMAIL = "test@example.com"
-TEST_USER_PASSWORD = "password123"
 
 def seed_data_for_user():
     """

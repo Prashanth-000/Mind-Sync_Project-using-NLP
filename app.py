@@ -4,6 +4,7 @@ from collections import defaultdict
 from datetime import datetime
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+from insights import generate_insights
 from nlp.analysis import analyze_text
 from nlp.task_extractor import extract_tasks
 from nlp.scorer import custom_productivity_score
@@ -11,7 +12,6 @@ from flask_mail import Mail, Message
 from nlp.summarizer import generate_rule_based_summary
 from database.db import get_entries_for_period
 import threading
-
 from werkzeug.utils import secure_filename
 from nlp.media_analyzer import transcribe_audio_local
 from prompts import generate_prompt
@@ -354,6 +354,23 @@ def get_prompt_api():
         print("❌ Error generating prompt:")
         traceback.print_exc()
         return jsonify({"prompt": "Error generating prompt."}), 500
+@app.route('/insights')
+def insights_redirect():
+    return redirect(url_for('insights_page', period='weekly'))
+
+
+@app.route('/insights/<period>')
+def insights_page(period):
+    # Check for valid periods to be safe
+    if period not in ['weekly', 'monthly', 'all']:
+        return "Invalid period selected.", 404
+
+    # Pass the period from the URL to our upgraded function
+    insights_list = generate_insights(period=period)
+    
+    # Also pass the period to the template so we can display it in the title
+    return render_template('insights.html', insights=insights_list, period=period)
+
 
 if __name__ == "__main__":
     app.run(debug=True, use_reloader=False)
