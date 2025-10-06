@@ -199,6 +199,21 @@
                 <div class="card-body">
                     <textarea id="journalText" class="form-control" rows="5" placeholder="Press Enter to save (Shift+Enter for a new line)"></textarea>
                     <button class="btn btn-primary w-100 mt-3" onclick="submitJournal()">Save Entry</button>
+                    <div class="d-flex justify-content-center my-3">
+                        <button type="button" class="btn btn-outline-info" onclick="getPrompt()">
+                            <i class="bi bi-lightbulb"></i> Get a Prompt
+                        </button>
+                    </div>
+                    <div class="d-flex justify-content-center mb-2">
+                        <span id="prompt-display" class="text-primary-emphasis fw-semibold"></span>
+                    </div>
+                    <div class="d-flex flex-column align-items-center mb-2">
+                        <strong><i class="bi bi-search"></i> View Insights:</strong>
+                        <div class="mt-2">
+                            <a href="/insights/weekly" class="btn btn-sm btn-secondary mx-1">For Past Week</a>
+                            <a href="/insights/monthly" class="btn btn-sm btn-secondary mx-1">For Past Month</a>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="card" style="animation-delay: 0.3s;">
@@ -665,6 +680,21 @@
         document.body.appendChild(toast);
 
         setTimeout(() => toast.remove(), 5000); // auto-remove after 3s
+    }
+     function getPrompt() {
+        const promptDisplay = document.getElementById('prompt-display');
+        promptDisplay.innerText = "Generating a personal prompt...";
+        const url = `/api/get_prompt?cache_bust=${new Date().getTime()}`;
+        
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                promptDisplay.innerText = data.prompt;
+            })
+            .catch(err => {
+                console.error(err);
+                promptDisplay.innerText = "Could not fetch a prompt. Please try again.";
+            });
     }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

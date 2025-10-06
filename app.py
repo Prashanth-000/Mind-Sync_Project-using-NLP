@@ -11,11 +11,14 @@ from flask_mail import Mail, Message
 from nlp.summarizer import generate_rule_based_summary
 from database.db import get_entries_for_period
 import threading
+
 from werkzeug.utils import secure_filename
 from nlp.media_analyzer import transcribe_audio_local
+from prompts import generate_prompt
 
 
 app = Flask(__name__)
+
 
 app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
 app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
@@ -333,6 +336,24 @@ def analyze_audio():
     return jsonify({
         "message": "Audio file has been successfully analyzed and saved as a new journal entry."
     }), 200
+
+
+# Route to get a journal prompt
+@app.route("/api/get_prompt")
+def get_prompt_api():
+    """Generates a personalized journaling prompt."""
+    try:
+        user_id = None
+        if current_user.is_authenticated:
+            user_id = str(current_user.id)
+
+        prompt = generate_prompt(user_id)
+        return jsonify({"prompt": prompt})
+    except Exception as e:
+        import traceback
+        print("❌ Error generating prompt:")
+        traceback.print_exc()
+        return jsonify({"prompt": "Error generating prompt."}), 500
 
 if __name__ == "__main__":
     app.run(debug=True, use_reloader=False)
