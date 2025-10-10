@@ -1,110 +1,87 @@
-import pandas as pd
 import numpy as np
-import tkinter as tk
-from tkinter import ttk
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import (
-    accuracy_score, precision_score, recall_score, f1_score,
-    confusion_matrix, classification_report
-)
-import seaborn as sns
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import time
+from sklearn.model_selection import StratifiedKFold, cross_val_score, train_test_split
+from sklearn.metrics import cohen_kappa_score, confusion_matrix
+from statsmodels.stats.contingency_tables import mcnemar
 
-# ---------------- Load Data ----------------
-df = pd.read_csv('Datasets/Emotion/test_converted.csv')
-texts = df['text'].tolist()
-labels = df['mood'].tolist()
-classes = sorted(list(set(labels)))
+# ---------------- Load Dataset ----------------
+df = pd.read_csv("Datasets/Emotion/train_converted.csv")
+texts = df["text"].tolist()
+labels = df["mood"].tolist()
 
-# ---------------- TF-IDF Features ----------------
-vectorizer = TfidfVectorizer(stop_words='english', max_features=5000)
+# ---------------- Text Vectorization ----------------
+vectorizer = TfidfVectorizer(stop_words="english", max_features=5000)
 X = vectorizer.fit_transform(texts)
-y = labels
+y = np.array(labels)
 
-# ---------------- Train Classifier ----------------
-clf = LogisticRegression(max_iter=1000)
-start_time = time.time()
-clf.fit(X, y)
-end_time = time.time()
-training_time = end_time - start_time
+# ---------------- Model ----------------
+model = LogisticRegression(max_iter=1000)
 
-# ---------------- Predictions ----------------
-start_time = time.time()
-y_pred = clf.predict(X)
-end_time = time.time()
-inference_time = end_time - start_time
+# ---------------- 1️⃣ Cross-Validation Performance ----------------
+cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+cv_scores = cross_val_score(model, X, y, cv=cv, scoring='accuracy')
 
-# ---------------- Metrics ----------------
-accuracy = accuracy_score(y, y_pred)
-precision = precision_score(y, y_pred, average='weighted', zero_division=0)
-recall = recall_score(y, y_pred, average='weighted', zero_division=0)
-f1 = f1_score(y, y_pred, average='weighted', zero_division=0)
+print("Cross-Validation Accuracies:", cv_scores)
+print("Mean Accuracy:", cv_scores.mean())
 
-report = classification_report(y, y_pred, output_dict=True, zero_division=0)
-report_df = pd.DataFrame(report).transpose()
+# --- Plot Cross-Validation Performance ---
+plt.figure(figsize=(7,5))
+sns.barplot(x=[f"Fold {i+1}" for i in range(len(cv_scores))], y=cv_scores, palette="viridis")
+plt.title("Cross-Validation Accuracy per Fold")
+plt.ylabel("Accuracy")
+plt.ylim(0.85, 1.0)
+plt.axhline(cv_scores.mean(), color="red", linestyle="--", label=f"Mean: {cv_scores.mean():.3f}")
+plt.legend()
+plt.tight_layout()
+plt.show()
 
-cm = confusion_matrix(y, y_pred, labels=classes)
+# ---------------- 2️⃣ Statistical Tests ----------------
+# Split for statistical evaluation
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.8, random_state=42)
 
-# ---------------- GUI Setup ----------------
-root = tk.Tk()
-root.title("Model Evaluation Dashboard")
-root.geometry("1200x900")
-root.configure(bg='white')
+# Train two models to compare (for McNemar's)
+model_A = LogisticRegression(max_iter=1000, random_state=42)
+model_B = LogisticRegression(max_iter=1000, C=0.5, random_state=42)  # Slight variation
 
-# Frame for Metrics
-metrics_frame = tk.Frame(root, bg='white')
-metrics_frame.pack(pady=10)
+model_A.fit(X_train, y_train)
+model_B.fit(X_train, y_train)
 
-tk.Label(metrics_frame, text="Overall Model Performance", font=("Arial", 16, "bold"), bg='white').pack()
+y_pred_A = model_A.predict(X_test)
+y_pred_B = model_B.predict(X_test)
 
-metrics_text = f"""
-Training Time: {training_time:.4f} sec
-Inference Time: {inference_time:.4f} sec
-Accuracy: {accuracy:.4f}
-Precision: {precision:.4f}
-Recall: {recall:.4f}
-F1-Score: {f1:.4f}
-"""
-tk.Label(metrics_frame, text=metrics_text, font=("Arial", 12), justify='left', bg='white').pack()
+# --- Confusion Table for McNemar's test ---
+tb = confusion_matrix(y_pred_A == y_test, y_pred_B == y_test)
+print("\nMcNemar’s Test Contingency Table:")
+print(tb)
 
-# ---------------- Charts ----------------
-fig, axes = plt.subplots(2, 2, figsize=(12,10))
-plt.subplots_adjust(hspace=0.4, wspace=0.3)
+# --- McNemar’s Test ---
+result = mcnemar(tb, exact=True)
+print(f"\nMcNemar’s Test Statistic: {result.statistic:.4f}, p-value: {result.pvalue:.4f}")
 
-# 1. Confusion Matrix
-sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=classes, yticklabels=classes, ax=axes[0,0])
-axes[0,0].set_title('Confusion Matrix')
-axes[0,0].set_xlabel('Predicted')
-axes[0,0].set_ylabel('Actual')
+# --- Plot McNemar Contingency Table ---
+plt.figure(figsize=(4,4))
+sns.heatmap(tb, annot=True, fmt='d', cmap='coolwarm', cbar=False)
+plt.title("McNemar’s Test Contingency Table")
+plt.xlabel("Model B Agreement")
+plt.ylabel("Model A Agreement")
+plt.tight_layout()
+plt.show()
 
-# 2. Overall Metrics Bar Chart
-metrics_df = pd.DataFrame({
-    'Metric': ['Accuracy', 'Precision', 'Recall', 'F1-Score'],
-    'Score': [accuracy, precision, recall, f1]
-})
-sns.barplot(x='Metric', y='Score', data=metrics_df, palette='viridis', ax=axes[0,1])
-axes[0,1].set_ylim(0,1)
-axes[0,1].set_title('Overall Model Metrics')
+# ---------------- 3️⃣ Cohen’s Kappa (Agreement) ----------------
+kappa = cohen_kappa_score(y_pred_A, y_pred_B)
+print(f"\nCohen’s Kappa: {kappa:.4f}")
 
-# 3. Class-wise Precision, Recall, F1
-class_metrics = report_df.loc[classes, ['precision','recall','f1-score']].reset_index().melt(id_vars='index')
-sns.barplot(x='index', y='value', hue='variable', data=class_metrics, palette='Set2', ax=axes[1,0])
-axes[1,0].set_ylim(0,1)
-axes[1,0].set_xlabel('Class')
-axes[1,0].set_ylabel('Score')
-axes[1,0].set_title('Class-wise Metrics')
-axes[1,0].legend(title='Metric')
-
-# 4. Class Distribution
-sns.countplot(x=labels, palette='pastel', ax=axes[1,1])
-axes[1,1].set_title('Actual Class Distribution')
-
-# Embed Matplotlib Figure in Tkinter
-canvas = FigureCanvasTkAgg(fig, master=root)
-canvas.draw()
-canvas.get_tk_widget().pack(pady=10)
-
-root.mainloop()
+# --- Plot Cohen’s Kappa as Gauge Chart ---
+fig, ax = plt.subplots(figsize=(6, 2))
+ax.barh(["Agreement"], [kappa], color="teal")
+ax.set_xlim(0, 1)
+ax.set_title("Cohen’s Kappa Agreement Level")
+for i, v in enumerate([kappa]):
+    ax.text(v + 0.02, i, f"{v:.2f}", color="black", va="center", fontweight="bold")
+plt.tight_layout()
+plt.show()

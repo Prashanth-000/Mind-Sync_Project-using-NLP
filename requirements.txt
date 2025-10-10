@@ -7,4 +7,9 @@ textblob
 nltk
 google-generativeai
 Flask-Mail
+gunicorn
 openai-whisper
+opencv-python
+fer
+google-cloud-speech
+google-cloud-videointelligence
