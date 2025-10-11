@@ -14,3 +14,4 @@ fer
 google-cloud-speech
 google-cloud-videointelligence
 soundfile
+librosa
