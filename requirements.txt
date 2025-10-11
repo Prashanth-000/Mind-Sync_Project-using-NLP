@@ -13,3 +13,4 @@ opencv-python
 fer
 google-cloud-speech
 google-cloud-videointelligence
+soundfile
