@@ -148,3 +148,4 @@ MindSync is designed to **empower personal growth** through actionable data insi
 
 > *"Your journal is more than just words — it's a map of your mind."*
 
+By ❤️ P000
