@@ -5,7 +5,6 @@ from nltk.sentiment import SentimentIntensityAnalyzer
 try:
     nltk.data.find('sentiment/vader_lexicon.zip')
 except nltk.downloader.DownloadError:
-    # nltk.download('vader_lexicon') # Uncomment this line if you need to download the lexicon
     pass
 
 def analyze_text(text):
