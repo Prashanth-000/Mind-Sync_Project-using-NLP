@@ -333,21 +333,6 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-**Dependencies installed:**
-
-- `Flask` - Web framework
-- `pymongo` - MongoDB driver
-- `python-dotenv` - Environment configuration
-- `Flask-Login` - Authentication
-- `Flask-Bcrypt` - Password hashing
-- `textblob` - Sentiment analysis
-- `nltk` - NLP tools
-- `google-generativeai` - AI capabilities
-- `Flask-Mail` - Email support
-- `openai-whisper` - Audio transcription
-- `opencv-python` - Computer vision
-- And many more...
-
 #### **Step 4: Configure Environment Variables**
 
 Create a `.env` file in the project root:
@@ -823,7 +808,7 @@ We welcome contributions! Here's how you can help:
 1. **Fork the Repository**
 
    ```bash
-   git clone https://github.com/yourusername/mind-sync-journal.git
+   git clone https://github.com/Prashanth-000/Mind-Sync_Project-using-NLP.git
    ```
 
 2. **Create a Feature Branch**
@@ -851,34 +836,13 @@ We welcome contributions! Here's how you can help:
 
 ---
 
-## 📝 Roadmap
 
-### Upcoming Features
+## 🔮 Future Enhancements
 
-- 🌙 Dark mode theme
-- 📲 Mobile native apps (iOS/Android)
-- 🤖 GPT-4 integration for deeper insights
-- 👥 Social sharing with privacy controls
-- 🎨 Custom mood emojis
-- 📞 Voice commands
-- 🔔 Smart notifications
-- 👨‍⚕️ Integration with health tracking apps
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 💬 Support & Contact
-
-Got questions or need help?
-
-- **Report Issues**: [GitHub Issues](https://github.com/Prashanth-000/Mind-Sync_Project-using-NLP/issues)
-- **Email**: prashanth@example.com
-- **Documentation**: Check our [Wiki](https://github.com/Prashanth-000/Mind-Sync_Project-using-NLP/wiki)
+- **Advanced Topic Modeling:** Identify key life themes using LDA (e.g., "work," "family," "health").
+- **AI-Powered Summaries:** Weekly generated summaries and encouragement using LLM APIs.
+- **Custom Reminders:** Push notifications & email reminders for journaling.
+- **Full-Text Search:** Search past entries using MongoDB text indexes.
 
 ---
 
@@ -893,59 +857,18 @@ Got questions or need help?
 
 ---
 
-<div align="center">
+## 💬 Support & Contact
 
-### Made with ❤️ by Prashanth-000
+Got questions or need help?
 
-**[⬆ Back to Top](#-mind-sync--journal)**
-
-</div>
-  - REST API for chart data and tasks
-
-### **3. NLP Layer**
-
-- Sentiment analysis using **TextBlob & NLTK**.
-- Task extraction using **regular expressions**.
-- Productivity scoring based on keyword analysis.
-
-### **4. Database (MongoDB)**
-
-- Stores entries as documents.
-- Each entry is linked to a unique `user_id`.
-- Flexible schema for easy evolution.
-
+- **Report Issues**: [GitHub Issues](https://github.com/Prashanth-000/Mind-Sync_Project-using-NLP/issues)
+- **Email**: prashanthkulal2589@gmail.com
+- **Documentation**: Check our [Wiki](https://github.com/Prashanth-000/Mind-Sync_Project-using-NLP/wiki)
 ---
 
-## 🔮 Future Enhancements
+## 📄 License
 
-- **Advanced Topic Modeling:** Identify key life themes using LDA (e.g., "work," "family," "health").
-- **AI-Powered Summaries:** Weekly generated summaries and encouragement using LLM APIs.
-- **Custom Reminders:** Push notifications & email reminders for journaling.
-- **Full-Text Search:** Search past entries using MongoDB text indexes.
-
----
-
-## 🗂️ Project Structure
-
-```
-├── nlp/
-│   ├── analysis.py         # Handles sentiment analysis
-│   ├── task_extractor.py   # Extracts tasks from text
-│   └── scorer.py           # Calculates productivity score
-├── templates/
-│   ├── index.html          # Main dashboard
-│   ├── day_view.html       # Day-specific entries view
-│   ├── login.html          # Login page
-│   ├── register.html       # Registration page
-│   └── layout.html         # Base template
-├── app.py                  # Main Flask application
-├── database/
-│   └── db.py               # MongoDB functions
-├── models.py               # Flask-Login user model
-├── seed_user_data.py       # Seed script
-├── requirements.txt        # Dependencies
-└── README.md               # This file
-```
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
