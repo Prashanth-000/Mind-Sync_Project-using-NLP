@@ -15,6 +15,7 @@ import threading
 from werkzeug.utils import secure_filename
 from nlp.media_analyzer import transcribe_audio_local
 from prompts import generate_prompt
+import subprocess
 
 
 app = Flask(__name__)
@@ -371,6 +372,11 @@ def insights_page(period):
     # Also pass the period to the template so we can display it in the title
     return render_template('insights.html', insights=insights_list, period=period)
 
+@app.route("/record_audio", methods=["POST"])
+def record_audio():
+    # Run your external recording script
+    subprocess.Popen(["python", "audio_recorder.py"])
+    return "Recording started!"
 
 if __name__ == "__main__":
     app.run(debug=True, use_reloader=False)
