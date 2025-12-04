@@ -10,7 +10,7 @@ Whether you're a student managing stress, a professional tracking productivity, 
 
 <div align="center">
 
-![MindSync Dashboard](images/DashBoard.jpg)
+<img src="images/DashBoard.jpg" alt="MindSync Dashboard" width="800"/>
 
 **Transform Your Thoughts Into Actionable Insights**
 
@@ -27,16 +27,24 @@ _An AI-powered intelligent journaling platform that understands your emotions, t
 
 ## 📌 Table of Contents
 
-- [About](#about)
-- [Features](#features)
-- [Architecture](#architecture)
-- [Screenshots](#screenshots)
-- [Tech Stack](#tech-stack)
-- [Getting Started](#getting-started)
-- [Usage Guide](#usage-guide)
-- [Project Structure](#project-structure)
-- [API Reference](#api-reference)
-- [Contributing](#contributing)
+- [📖 About](#-about)
+- [✨ Key Features](#-key-features)
+- [🏗️ Architecture](#️-architecture)
+- [📸 Screenshots & Features](#-screenshots--features)
+- [🛠️ Tech Stack](#️-tech-stack)
+- [🚀 Getting Started](#-getting-started)
+- [📖 Usage Guide](#-usage-guide)
+- [📁 Project Structure](#-project-structure)
+- [🔌 API Reference](#-api-reference)
+- [🎯 Key Algorithms & Methodology](#-key-algorithms--methodology)
+- [🔒 Security Features](#-security-features)
+- [📊 Database Schema](#-database-schema)
+- [🚀 Performance Optimization](#-performance-optimization)
+- [🤝 Contributing](#-contributing)
+- [🔮 Future Enhancements](#-future-enhancements)
+- [🙏 Acknowledgments](#-acknowledgments)
+- [💬 Support & Contact](#-support--contact)
+- [📄 License](#-license)
 
 ---
 
@@ -81,38 +89,38 @@ Create a judgment-free digital sanctuary where users can:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                        USER BROWSER                          │
+│                        USER BROWSER                         │
 │         (HTML5 + CSS3 + JavaScript + Bootstrap 5)           │
 └────────────────────────┬────────────────────────────────────┘
                          │ HTTP/AJAX
                          ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                    FLASK WEB SERVER                          │
+│                    FLASK WEB SERVER                         │
 │  ┌──────────────────────────────────────────────────────┐   │
-│  │ • Authentication & Session Management              │   │
-│  │ • Route Handling & Business Logic                  │   │
-│  │ • Audio Processing & Transcription                 │   │
-│  │ • Report Generation & Email Services              │   │
+│  │ • Authentication & Session Management                │   │
+│  │ • Route Handling & Business Logic                    │   │
+│  │ • Audio Processing & Transcription                   │   │
+│  │ • Report Generation & Email Services                 │   │
 │  └──────────────────────────────────────────────────────┘   │
 └────────────────────────┬────────────────────────────────────┘
                          │ PyMongo Driver
                          ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                    MONGODB ATLAS CLOUD                       │
+│                    MONGODB ATLAS CLOUD                      │
 │  ┌──────────────────────────────────────────────────────┐   │
-│  │ Collections: users | entries | tasks               │   │
-│  │ Indexed Queries | Aggregation Pipeline             │   │
+│  │ Collections: users | entries | tasks                 │   │
+│  │ Indexed Queries | Aggregation Pipeline               │   │
 │  └──────────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────┘
 
               ┌──────────────────────────────────┐
-              │      NLP PROCESSING ENGINE        │
-              │  ┌──────────────────────────────┐ │
-              │  │ TextBlob (Polarity Analysis) │ │
-              │  │ VADER (Sentiment Scoring)    │ │
-              │  │ NLTK (Tokenization)          │ │
-              │  │ Regex (Task Extraction)      │ │
-              │  └──────────────────────────────┘ │
+              │      NLP PROCESSING ENGINE       │
+              │  ┌──────────────────────────────┐│
+              │  │ TextBlob (Polarity Analysis) ││
+              │  │ VADER (Sentiment Scoring)    ││
+              │  │ NLTK (Tokenization)          ││
+              │  │ Regex (Task Extraction)      ││
+              │  └──────────────────────────────┘│
               └──────────────────────────────────┘
 ```
 
@@ -147,7 +155,9 @@ Data Aggregation & Visualization
 
 ### 🔐 Authentication System
 
-![Login & Register](images/loginNregister.jpg)
+<p align="center">
+  <img src="images/loginNregister.jpg" alt="Login & Register" width="700"/>
+</p>
 
 **Features:**
 
@@ -160,7 +170,9 @@ Data Aggregation & Visualization
 
 ### 📊 Dashboard & Analytics
 
-![Dashboard](images/DashBoard.jpg)
+<p align="center">
+  <img src="images/DashBoard.jpg" alt="Dashboard" width="700"/>
+</p>
 
 **Your Personal Command Center:**
 
@@ -173,7 +185,9 @@ Data Aggregation & Visualization
 
 ### 📝 Daily Entry View
 
-![Day View](images/AudioInput.jpg)
+<p align="center">
+  <img src="images/AudioInput.jpg" alt="Audio Input" width="700"/>
+</p>
 
 **Journal Entry Features:**
 
@@ -187,7 +201,9 @@ Data Aggregation & Visualization
 
 ### ✅ Pending Tasks Management
 
-![Pending Tasks](images/PendingTask.jpg)
+<p align="center">
+  <img src="images/PendingTask.jpg" alt="Pending Tasks" width="700"/>
+</p>
 
 **Smart Task Organization:**
 
@@ -200,7 +216,9 @@ Data Aggregation & Visualization
 
 ### 📈 Trend Analytics
 
-![Trend Charts](images/TredndChart.jpg)
+<p align="center">
+  <img src="images/TredndChart.jpg" alt="Trend Charts" width="700"/>
+</p>
 
 **Advanced Visualizations:**
 
@@ -213,7 +231,9 @@ Data Aggregation & Visualization
 
 ### 📧 Email Reports
 
-![Email Report](images/EmailReport.jpg)
+<p align="center">
+  <img src="images/EmailReport.jpg" alt="Email Report" width="700"/>
+</p>
 
 **Healthcare Integration:**
 
@@ -226,7 +246,9 @@ Data Aggregation & Visualization
 
 ### 🧠 AI-Generated Insights
 
-![Summary](images/Summery.jpg)
+<p align="center">
+  <img src="images/Summery.jpg" alt="AI Summary" width="700"/>
+</p>
 
 **Intelligent Analysis:**
 
@@ -239,7 +261,9 @@ Data Aggregation & Visualization
 
 ### 🏗️ System Architecture
 
-![Architecture](images/architecture.png)
+<p align="center">
+  <img src="images/architecture.png" alt="System Architecture" width="750"/>
+</p>
 
 **Complete System Design:**
 
@@ -836,7 +860,6 @@ We welcome contributions! Here's how you can help:
 
 ---
 
-
 ## 🔮 Future Enhancements
 
 - **Advanced Topic Modeling:** Identify key life themes using LDA (e.g., "work," "family," "health").
@@ -864,6 +887,7 @@ Got questions or need help?
 - **Report Issues**: [GitHub Issues](https://github.com/Prashanth-000/Mind-Sync_Project-using-NLP/issues)
 - **Email**: prashanthkulal2589@gmail.com
 - **Documentation**: Check our [Wiki](https://github.com/Prashanth-000/Mind-Sync_Project-using-NLP/wiki)
+
 ---
 
 ## 📄 License
@@ -884,6 +908,6 @@ MindSync is designed to **empower personal growth** through actionable data insi
 
 ### Made with ❤️ by PFB-000
 
-**[GitHub Repository](https://github.com/Prashanth-000)**
+**[GitHub](https://github.com/Prashanth-000)**
 
 </div>
