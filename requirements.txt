@@ -41,6 +41,3 @@ fer>=22.4.0
 google-generativeai>=0.3.0
 google-cloud-speech>=2.21.0
 google-cloud-videointelligence>=2.11.0
-
-# Utilities
-bson>=0.5.10
